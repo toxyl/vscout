@@ -1,0 +1,11 @@
+[Unit]
+Description={{ NAME }}
+
+[Service]
+WorkingDirectory=~
+ExecStart={{ BIN_DIR }}/{{ NAME }} daemon
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,83 @@
+##############################################################################################
+# Available Placeholders                                                                     #
+# ========================================================================================== #
+#                                                                                            #
+# Variable blocks                                                                            #
+# ========================================================================================== #
+# [DOMAINS:3]                                                                                #
+# {                                                                                          #
+#    ...                                                                                     #
+# }                                                                                          #
+# List of domains that are made available through the $DOMAINS3 variable                     #
+# defined in domains.txt in block 3. Each will be checked for usability.                     #
+# Only active domains that are not firewalled will be added to the system.                   #
+# [BACKEND:https:7]                                                                          #
+# {                                                                                          #
+#     hello/world[int:3]                                                                     #
+#     ?some-random-var=[int:3]                                                               #
+# }                                                                                          #
+#                                                                                            #
+# Use the above to create blocks of URL patterns using one of the $DOMAINS* variables.       #
+# The second parameter can be http or https and defines the protocol to use.                 #
+# The third parameter defines from which domain set to read the domain name.                 #
+# The example would parse to:                                                                #
+#                                                                                            #
+# https://$DOMAINS7/hello/world[int:3]                                                       #
+# https://$DOMAINS7/?some-random-var=[int:3]                                                 #
+# [BACKEND:http:3] = generates URL patterns for an HTTP backend using domains                #
+# {                  defined in domains.txt in block 3,                                      #
+#    ...             each line is used as suffix for protocol + domain                       #
+# }                                                                                          #
+# ------------------------------------------------------------------------------------------ #
+#                                                                                            #
+# Misc. variable shorthands                                                                  #
+# ========================================================================================== #
+# [$DOMAINS:3]     = random domain from the domains defined in domains.txt in block 3        #
+# [PTA|int:6|a,b]  = random placeholder (separate with pipes)                                #
+# ------------------------------------------------------------------------------------------ #
+#                                                                                            #
+# Random data from datasets                                                                  #
+# ========================================================================================== #
+# [USERAGENT]    = random user agent (from useragents.txt)                                   #
+# [DOMAIN]       = random spammer domain (from domains.txt)                                  #
+# [USER]         = random user name (from usernames.txt)                                     #
+# [@]            = random fake email ([USER]@[DOMAIN])                                       #
+# [WORD]         = random word (from wordlists.txt)                                          #
+# ------------------------------------------------------------------------------------------ #
+#                                                                                            #
+# Generated random data                                                                      #
+# ========================================================================================== #
+# [#UUID]        = random UUID (xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx)                             #
+# [#56]          = random 56-characters hash                                                 #
+# [int:6]        = random 6-characters integer (zero-padded)                                 #
+# [str:6]        = random 6-characters lowercase string (a-z)                                #
+# [strU:6]       = random 6-characters uppercase string (A-Z)                                #
+# [strR:6]       = random 6-characters mixed-case string (a-z, A-Z)                          #
+# [mix:6]        = random 6-characters lowercase alphanumeric string (a-z, 0-9)              #
+# [mixU:6]       = random 6-characters uppercase alphanumeric string (A-Z, 0-9)              #
+# [mixR:6]       = random 6-characters mixed-case alphanumeric string (a-z, A-Z, 0-9)        #
+# [10-500]       = random value between 10 and 500 (inclusive)                               #
+# [a,b,c]        = random value from the list                                                #
+# ------------------------------------------------------------------------------------------ #
+#                                                                                            #
+# Vulnerabilities                                                                            #
+# ========================================================================================== #
+# [VULN]         = random vulnerability                                                      #
+# [PTA:10]       = path traversal attack with random depth (given value is the maximum)      #
+# [PTA]          = random path traversal attack                                              #
+# [SQLi]         = random SQLi attack                                                        #
+# [XSS]          = random XSS attack                                                         #
+# ------------------------------------------------------------------------------------------ #
+##############################################################################################
+
+# Backend 1
+##############################################################################################
+[BACKEND:https:1]
+{
+                   index.php    / ? vulnerable=[VULN]
+    some / path  / script.php   / ? vulnerable=[XSS]
+                   index.php    / ? vulnerable=[SQLi]
+                   index.php    / ? vulnerable=[PTA]
+    some / path                 / ? paramA=[mixR:6] & paramB=[#UUID] 
+    some / [PTA]                / ? paramA=[mixR:6] & paramB=[#UUID] 
+}

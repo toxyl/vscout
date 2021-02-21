@@ -1,0 +1,12 @@
+[Unit]
+Description=IPChanger
+
+[Service]
+WorkingDirectory=~
+ExecStart=/usr/bin/ipchanger -s
+ExecStop=/usr/bin/ipchanger -x
+ExecReload=/usr/bin/ipchanger -r
+User=root
+
+[Install]
+WantedBy=multi-user.target

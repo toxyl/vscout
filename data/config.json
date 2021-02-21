@@ -1,0 +1,78 @@
+{
+	// Disable if you REALLY want to run everything using your own IP, i.e. expose yourself.
+	"tor_mode": true,
+
+	// If enabled domains will be checked for firewall responses before being added. 
+	// Currently this only checks if the status code of the domain (without path) equals 403.
+	"check_firewalls": true,
+
+	// The URL from which to retrieve the current IP, 
+	// it must return the IP in plaintext and nothing else!
+	"ip_check_url": "https:\/\/checkip.amazonaws.com\/",
+
+	// Settings for the NginX server.
+	// Note that after changing these you will have to run the installer again.
+	"server": {
+		// This is the IP NginX will listen om.
+		"ip": "127.0.0.1",
+
+		// This is the port NginX will listen on.
+		"port": 80,
+
+		// This is the list IPs that are allowed access.
+		"whitelist": [
+			"127.0.0.1",
+			"192.168.178.0/24"
+		]
+	},
+
+	// Various settings regarding workers
+	"workers": {
+		// Never destroy workers if there are less than this many active.
+		"min": 2,
+
+		// Never spawn workers if there already this many active.
+		"max": 8,
+		
+		// Spawn workers if 5m load average is below this level.
+		"spawn_threshold": 0.60,
+
+		// Destroy workeers if 5m load average is above this level.
+		"destroy_threshold": 0.85,
+
+		// Time (in seconds) between load average checks to determine 
+		// if we have to destroy or spawn workers.
+		"update_time": 60
+	},
+
+	"log": {
+		// Enable to log details of every response.
+		"responses": false,
+
+		// Enable to log details of template data loads.
+		"parser": false
+	},
+
+	"database": {
+		// Bundle this many non-returning queries before executing them on the database.
+		// Useful to reduce write load caused by multiple workers running at the same time.
+		"insert_buffer_size": 20,
+
+		// Time (in seconds) before the insert buffer is force-flushed.
+		// This takes precedence over the buffer size defined above. 
+		"insert_buffer_flush_time": 120,
+
+		// Time (in seconds) between stats updates. 
+		"stats_update_time": 300
+	},
+
+	// Define files to use for template data. 
+	"files": {
+		"ip_blacklist": "blacklist.txt",
+		"user_agents": "user_agents.txt",
+		"user_names": "user_names.txt",
+		"domains": "domains.txt",
+		"urls": "urls.txt",
+		"wordlists": "wordlists.txt"
+	}
+}

