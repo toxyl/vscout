@@ -199,7 +199,7 @@ class Stats
 
         $response[] = Router::is_cli() ? "\n" : "</table>";
 
-        return implode("\n", $response));
+        return implode("\n", $response);
     }
 
     static public function average_speed()
