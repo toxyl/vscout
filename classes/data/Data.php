@@ -9,8 +9,11 @@
             {
                 try 
                 {
-                    DataExecBuffer::flush();
-                    self::$db->exec('PRAGMA optimize;');                    
+                    if (Router::is_cli())
+                    {
+                        DataExecBuffer::flush();
+                        self::$db->exec('PRAGMA optimize;');                        
+                    }
                     self::$db->close();
                 }
                 catch (\Throwable $e)
