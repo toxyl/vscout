@@ -85,7 +85,7 @@ class Stats
 
     static private function header_format($data)
     {
-        return ANSI::string("%b8>%f7> " . self::format_row($data, 'th') . " %rst>");
+        return Router::is_cli() ? ANSI::string("%b8>%f7> " . self::format_row($data, 'th') . " %rst>") : self::format_row($data, 'th');
     }
 
     static private function line_format($data)
@@ -199,8 +199,7 @@ class Stats
 
         $response[] = Router::is_cli() ? "\n" : "</table>";
 
-
-        Response::auto(implode("\n", $response));
+        return implode("\n", $response));
     }
 
     static public function average_speed()
@@ -212,6 +211,11 @@ class Stats
             $total += intval($v);
         }
         return $total / 60.0;
+    }
+
+    static public function print_formatted()
+    {
+        return self::print(self::retrieve());
     }
 
     static public function show($follow = true)
@@ -228,7 +232,10 @@ class Stats
                 $follow = false;
             }
 
-            self::print(self::retrieve());
+            if (Router::is_cli())
+                Response::auto(self::print_formatted());
+            else
+                Response::text(self::print_formatted());
 
             if (!$follow)
                 break;

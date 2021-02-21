@@ -64,13 +64,32 @@
             border: 0px solid;
         }
 
+        #stats {
+            width: 100%;
+            height: 100%;
+            font-family: monospace;
+            color: white;
+            font-size: 11px;
+            border: 0px solid;
+        }
+
+        #ifConfig {
+            position: absolute;
+            bottom: 250px;
+            left: 0;
+            right: 0;
+            width: 350px;
+            height: 100%;
+            border: 0px solid;
+        }
+
         #ifStats {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            width: 350px;
-            height: 100%;
+            width: 100%;
+            height: 250px;
             border: 0px solid;
         }
 
@@ -79,7 +98,7 @@
             top: 10px;
             left: 360px;
             right: 10px;
-            bottom: 40px;
+            bottom: 290px;
             border: 0px solid;
         }
 
@@ -90,11 +109,21 @@
             <input id='inURL' onkeydown='lookupURL(event)' placeholder='URL Lookup'>
             <textarea id='urlRes'></textarea>
         </div>
-        <div id='ifstats'>
+        <div id='ifConfig'>
             <iframe id='config' src='?config'></iframe>
         </div>
+        <div id='ifStats'>
+            <iframe id='stats' src='?statistics'></iframe>
+        </div>
         <script>
-            setInterval(function() { $('#config')[0].contentWindow.location.reload(); }, 30000);
+            setInterval(
+                function() 
+                { 
+                    $('#stats')[0].contentWindow.location.reload(); 
+                    $('#config')[0].contentWindow.location.reload(); 
+                }, 
+                30000
+            );
         </script>        
     </body>
 </html>

@@ -55,6 +55,16 @@
 
         /**
          * @ACL GET CLI
+         * 
+         * Returns the current stats.
+         */
+        static public function statistics() 
+        { 
+            Response::html_file('stats', [ "data" => Stats::print_formatted() ], 10); 
+        }
+
+        /**
+         * @ACL GET CLI
          *
          * Uses curl through Tor to retrieve a URL to analyze the response of.
          * Redirects will not be followed. 
