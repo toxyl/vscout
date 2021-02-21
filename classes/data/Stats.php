@@ -70,7 +70,7 @@ class Stats
         ];
     }
 
-    static private function format_row($data)
+    static private function format_row($data, $cell_type='td')
     {
         $fmt = [];
         $val = [];
@@ -79,13 +79,13 @@ class Stats
             $fmt[] = $item[0] ?? '----'; 
             $val[] = $item[1] ?? 'null'; 
         }
-        $fmt = implode(" ", $fmt);
+        $fmt = Router::is_cli() ? implode(" ", $fmt) : "<tr><$cell_type>" . implode("</$cell_type><$cell_type>", $fmt) . "</$cell_type></tr>";
         return vsprintf($fmt, $val);
     }
 
     static private function header_format($data)
     {
-        return ANSI::string("%b8>%f7> " . self::format_row($data) . " %rst>");
+        return ANSI::string("%b8>%f7> " . self::format_row($data, 'th') . " %rst>");
     }
 
     static private function line_format($data)
@@ -150,7 +150,7 @@ class Stats
         $s1d  = $s['status_codes']['1d'];
         $sall = $s['status_codes']['all'];
 
-        $response[] = "\n";
+        $response[] = Router::is_cli() ? "\n" : "<table>";
 
         $load = self::load_averages();
 
@@ -178,7 +178,7 @@ class Stats
             ['%6d',      $s['domains']['dead']]
         ]);
 
-        $response[] = "\n";
+        $response[] = Router::is_cli() ? "\n" : "</table><br><table>";
 
         self::header($response, 'Status Codes', 'Total', '5m', '15m', '1h', '1d', 'average speed (based on 1h)');
 
@@ -197,7 +197,8 @@ class Stats
         ];
         self::line_status_code($response, 'total', '', $vAll['total'], $vAll['5m'], $vAll['15m'], $vAll['1h'], $vAll['1d']);
 
-        $response[] = "\n";
+        $response[] = Router::is_cli() ? "\n" : "</table>";
+
 
         Response::auto(implode("\n", $response));
     }
