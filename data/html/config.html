@@ -18,18 +18,18 @@
 </style>
 <table>
 	<tr><th colspan="2"><h2>Directories</h2></th></tr>
-	<tr><th>Current dir</th><td>{{ `pwd` }}</td></tr>
+	<tr><th>Current dir</th><td>{{ $current_dir }}</td></tr>
 	<tr><th>Binary dir</th><td>{{ BIN_DIR }}</td></tr>
 	<tr><th>Web dir</th><td>{{ WEB_DIR }}</td></tr>
 	<tr><th>Data dir</th><td>{{ DATA_DIR }}</td></tr>
 	<tr><th colspan="2">&nbsp;</th></tr>
 	
 	<tr><th colspan="2"><h2>System</h2></th></tr>
-	<tr><th>OS</th><td>{{ `uname -som` }}</td></tr>
-	<tr><th>Current user</th><td>{{ `whoami` }}</td></tr>
-	<tr><th>Public IP</th><td>{{ `curl --silent {{ IP_CHECK_URL }}` }} ({{ `whois $(curl --silent {{ IP_CHECK_URL }}) | grep country -i -m 1 | cut -d ':' -f 2 | xargs` }})</td></tr>
-	<tr><th>IPs</th><td>{{ `hostname -I | perl -pe 's@ @<br>@g'` }}</td></tr>
-	<tr><th>Load average</th><td>{{ `cat /proc/loadavg | perl -pe 's@([^\s]+) ([^\s]+) ([^\s]+) .*@&nbsp;1m: \1<br>&nbsp;5m: \2<br>15m: \3<br>@g'` }}</td></tr>
+	<tr><th>OS</th><td>{{ $os }}</td></tr>
+	<tr><th>Current user</th><td>{{ $user }}</td></tr>
+	<tr><th>Public IP</th><td>{{ $ip }}</td></tr>
+	<tr><th>IPs</th><td>{{ $ips }}</td></tr>
+	<tr><th>Load average</th><td>{{ $load }}</td></tr>
 	<tr><th colspan="2">&nbsp;</th></tr>
 
 	<tr><th colspan="2"><h2>Server</h2></th></tr>

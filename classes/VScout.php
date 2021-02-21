@@ -50,7 +50,16 @@
          */
         static public function config() 
         { 
-            Response::html_file('config', [  ], 10); 
+            $ip = `curl --silent ${ IP_CHECK_URL }`;
+            Response::html_file('config', [ 
+                "current_dir" => `pwd`,
+                "os" => `uname -som`,
+                "user" => `whoami`,
+                "ip" => $ip . '(' . `whois $ip | grep country -i -m 1 | cut -d ':' -f 2 | xargs` . ')',
+                "ips" => `hostname -I | perl -pe 's@ @<br>@g'`,
+                "load" => `cat /proc/loadavg | perl -pe 's@([^\s]+) ([^\s]+) ([^\s]+) .*@&nbsp;1m: \1<br>&nbsp;5m: \2<br>15m: \3<br>@g'`,
+            ], 
+            10); 
         }
 
         /**
