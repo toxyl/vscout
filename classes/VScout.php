@@ -57,7 +57,7 @@
                 "user" => `whoami`,
                 "ip" => (Scout::blacklisted() ? '[BLACKLISTED] ' . $ip : $ip) . ' (' . CommandIO::exec("whois $ip | grep country -i -m 1 | cut -d ':' -f 2 | xargs") . ')',
                 "ips" => `hostname -I | perl -pe 's@ @<br>@g'`,
-                "load" => `cat /proc/loadavg | perl -pe 's@([^\s]+) ([^\s]+) ([^\s]+) .*@&nbsp;1m: \1<br>&nbsp;5m: \2<br>15m: \3<br>@g'`,
+                "load" => `cat /proc/loadavg | perl -pe 's@([^\\s]+) ([^\\s]+) ([^\\s]+) .*@&nbsp;1m: \\1<br>&nbsp;5m: \\2<br>15m: \\3<br>@g'`,
                 "whitelist" => implode("<br>", explode(", ", SERVER_WHITELIST))
             ], 
             10); 
