@@ -50,7 +50,7 @@
          */
         static public function config() 
         { 
-            $ip = `curl --silent ${ IP_CHECK_URL }`;
+            $ip = CommandIO::exec("curl --silent " . IP_CHECK_URL);
             Response::html_file('config', [ 
                 "current_dir" => `pwd`,
                 "os" => `uname -som`,
