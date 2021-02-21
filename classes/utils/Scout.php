@@ -1,7 +1,7 @@
 <?php
 class Scout
 {
-    static private function blacklisted()
+    static public function blacklisted()
     {
         if (!file_exists(DataFile::path(FILE_IP_BLACKLIST)))
             DataFile::write(FILE_IP_BLACKLIST, '');
