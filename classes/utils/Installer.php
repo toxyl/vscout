@@ -24,10 +24,12 @@ class Installer
         if (TOR_MODE)
         {
 		    ProcessControl::timeout(60,
-		    	function() use ($phpv) { return CommandIO::exec("service tor top ; service ipchanger stop ; service " . NAME . " stop ; service nginx stop ; service php{$phpv}-fpm stop"); }, null,
-		    	function() { return "Failed to stop all services!"; }, null
+		    	function() use ($phpv) { return CommandIO::exec("service tor top ; service ipchanger stop"); }, null,
+		    	function() { return "Failed to stop tor/ipchanger services!"; }, null
 		    );        	
         }
+
+        CommandIO::exec("service " . NAME . " stop ; service nginx stop ; service php{$phpv}-fpm stop");
 
 		Response::auto("Installing required software...\n");
 		Response::auto(CommandIO::exec("apt-get purge apache2 -y ; apt-get install sqlite3 nginx php{$phpv}-fpm php{$phpv}-sqlite3 php{$phpv}-readline network-manager proxychains tor python3.9-dev python3-pip cython3 gcc iptables -y --no-install-recommends") . "\n");
@@ -51,7 +53,7 @@ class Installer
         	)
         );
         CommandIO::exec('rm ' . NGINX_DIR . '/default'); # get rid off the default nginx site
-        CommandIO::exec('rm ' . WEB_DIR . '/index.php');
+        CommandIO::exec('rm ' . WEB_DIR . '/index.*');
         @symlink(BIN_DIR . '/' . NAME, WEB_DIR . '/index.php');
         CommandIO::exec('chown www-data:www-data ' . WEB_DIR . '/index.php'); # make accessible for nginx
         CommandIO::exec("service nginx start");
