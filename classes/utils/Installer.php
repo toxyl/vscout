@@ -32,7 +32,7 @@ class Installer
         CommandIO::exec("service " . NAME . " stop ; service nginx stop ; service php{$phpv}-fpm stop");
 
 		Response::auto("Installing required software...\n");
-		Response::auto(CommandIO::exec("apt-get purge apache2 -y ; apt-get install sqlite3 nginx php{$phpv}-fpm php{$phpv}-sqlite3 php{$phpv}-readline network-manager proxychains tor python3.9-dev python3-pip cython3 gcc iptables whois -y --no-install-recommends") . "\n");
+		Response::auto(CommandIO::exec("apt-get purge apache2 -y ; apt-get install sqlite3 nginx php{$phpv}-fpm php{$phpv}-sqlite3 php{$phpv}-readline network-manager proxychains tor python3.9-dev python3-pip cython3 gcc iptables whois curl -y --no-install-recommends") . "\n");
 
 		Response::auto("Installing NginX configuration...\n");
 		$whitelist = explode(',', SERVER_WHITELIST);
