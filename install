@@ -35,5 +35,17 @@
 	    closedir($dir);
 	}
 	
-	cprecursive("$dir/data", DATA_DIR . '/');
+	$dstdir = DATA_DIR . '/';
+	$overwrite = true;
+	if (file_exists($dstdir))
+	{
+		echo "Do you want to overwrite the data in $dstdir? [y|N]\n";
+		$a = substr(strtolower(readline()), 0, 1);
+		if ($a != 'y')
+			$overwrite = false;
+	}
+
+	if ($overwrite)
+		cprecursive("$dir/data", $dstdir);
+
 	system(BIN_DIR . "/" . NAME . ' install');
