@@ -442,6 +442,12 @@
             {
                 $url = preg_replace('/\s/', '', self::random_url());
                 self::parse($url);
+
+                if (preg_match('/(https|http):\/\/\/.*/', $url))
+                {
+                    $url = preg_replace('/(https|http):\/\/\/(.*)/', '$1://[DOMAIN]/$2', $url);
+                    self::parse($url);
+                } 
             }
             return $url;
         }
