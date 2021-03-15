@@ -9,7 +9,8 @@
             $response = explode("\n", trim(`proxychains curl -v -i --head -q -s --compressed '$url' 2>/dev/null`));
             foreach ($response as $line) 
             {
-                if (preg_match('/^HTTP\/.*?\s+403\s+Forbidden$/', trim($line)))
+                $line = trim($line);
+                if (preg_match('/^HTTP\/.*?\s+403\s+Forbidden$/', $line) || preg_match('/^.+: Connection refused$/', $line))
                 {
                     Data::upsert('domain', 'name', ['name' => $url, 'firewalled' => 1, 'dead' => 0]);
                     return true;

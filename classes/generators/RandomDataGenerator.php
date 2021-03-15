@@ -306,7 +306,8 @@
         static private function parse_url(&$url)
         {
             self::parse_set('/\[URL\]/', $url, function($url, $m) {
-                return preg_replace('/\s/', '', self::random_url());
+                $ru = preg_replace('/\s/', '', self::random_url());
+                return preg_match('/(https|http):\/\/\/.*/', $ru) ? preg_replace('/(https|http):\/\/\/(.*)/', '$1://[DOMAIN]/$2', $ru)  : $ru;
             }, false);
         }
 
