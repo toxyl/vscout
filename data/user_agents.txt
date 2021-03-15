@@ -47,6 +47,7 @@
 #                                                                                            #
 # Generated random data                                                                      #
 # ========================================================================================== #
+# [URL]          = random URL                                                                #
 # [#UUID]        = random UUID (xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx)                             #
 # [#56]          = random 56-characters hash                                                 #
 # [int:6]        = random 6-characters integer (zero-padded)                                 #

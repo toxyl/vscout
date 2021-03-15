@@ -303,6 +303,13 @@
             }, false);
         }
 
+        static private function parse_url(&$url)
+        {
+            self::parse_set('/\[URL\]/', $url, function($url, $m) {
+                return preg_replace('/\s/', '', self::random_url());
+            }, false);
+        }
+
         static private function parse_variable(&$url)
         {
             self::parse_set('/\[\$([a-zA-Z0-9_]+)\]/', $url, function($url, $m) {
@@ -386,6 +393,7 @@
         * 
         * Generated random data
         * ========================================================================================
+        * [URL]          = random URL
         * [#UUID]        = random UUID (xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx)
         * [#56]          = random 56-characters hash 
         * [int:6]        = random 6-characters integer (zero-padded)
@@ -409,6 +417,7 @@
         * ----------------------------------------------------------------------------------------
         */
         static public function parse(&$str) {
+            self::parse_url($str);
             self::parse_or_list($str);
             self::parse_variable($str);
             self::parse_word($str);
