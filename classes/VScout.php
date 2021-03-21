@@ -125,6 +125,23 @@
         /**
          * @ACL CLI
          * 
+         * Shows stats of the system.
+         */
+        static public function results_by_status_code(int $min = 100, int $max = 599) 
+        { 
+            $res = Data::results_by_status($min, $max);
+            foreach ($res as &$v) 
+            {
+                if (is_array($v))
+                    $v = '%f3>' . $v[0] . '%rst>: %f4>' . $v[1] . '%rst>://%f2>' . $v[2] . '%rst>' . preg_replace('/(=)/', ' %f5>$1%rst> ', preg_replace('/(&|\?|\/)/', ' %f1>$1%rst> ', preg_replace('/(&|\?)(.*?)=/', '$1%f2>$2%rst>=', str_replace('%', '%%', $v[3]))));
+            }
+            Response::ansi(implode("%ln>", $res)."%ln>");
+            Data::close();
+        }
+
+        /**
+         * @ACL CLI
+         * 
          * Rescans the status of all known domains.
          */
         static public function domains_rescan() { DomainScanner::update(); }

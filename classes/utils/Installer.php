@@ -33,6 +33,8 @@ class Installer
 
 		Response::auto("Installing required software...\n");
 		Response::auto(CommandIO::exec("apt-get purge apache2 -y ; apt-get install dnsutils sqlite3 nginx php{$phpv}-fpm php{$phpv}-sqlite3 php{$phpv}-readline network-manager proxychains tor python3.9-dev python3-pip cython3 gcc iptables whois curl wget -y --no-install-recommends") . "\n");
+		Response::auto("Removing obsolete packages...\n");
+		Response::auto(CommandIO::exec("apt-get autoremove -y") . "\n");
 
 		Response::auto("Installing NginX configuration...\n");
 		$whitelist = explode(',', SERVER_WHITELIST);

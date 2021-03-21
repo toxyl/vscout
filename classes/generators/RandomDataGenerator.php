@@ -91,7 +91,7 @@
             $i = 0;
             while ($res == '' && $i < self::$max_retries) {
                 $res = trim(self::$urls->get());
-                $i++;         
+                $i++;
             }
             return $res; 
         }

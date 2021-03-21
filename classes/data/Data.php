@@ -254,4 +254,13 @@
 
             self::$db->update_stats();
         }
+
+        static public function results_by_status(int $min = 100, int $max = 599)
+        {
+            if (self::$db == null)
+                self::$db = new Database(); 
+
+            return self::$db->get_results_by_status_code($min, $max);
+        }
+
     }

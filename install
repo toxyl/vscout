@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 	$app = count($argv) < 2 ? "VScout" : $argv[1];
-	echo "Installing $app...\n";
+	echo "Building $app...\n";
 	
 	$dir = dirname(__FILE__);
 
@@ -16,6 +16,8 @@
 	{
 		$source = str_replace(trim($part[0]), preg_replace('/<\?php\s*(.*)/m', '$1', file_get_contents($dir . '/classes/' . $part[1] . '.php')), $source);
 	}
+
+	echo "Copying $app to ".BIN_DIR."...\n";
 	file_put_contents(BIN_DIR . "/" . NAME, $source);
 	system("chmod +x " . BIN_DIR . "/" . NAME);
 
@@ -35,6 +37,7 @@
 	    closedir($dir);
 	}
 	
+	echo "Looking for previous $app installation...\n";
 	$dstdir = DATA_DIR . '/';
 	$overwrite = true;
 	if (file_exists($dstdir))
@@ -48,4 +51,5 @@
 	if ($overwrite)
 		cprecursive("$dir/data", $dstdir);
 
+	echo "Running $app installer, please wait...\n";
 	system(BIN_DIR . "/" . NAME . ' install');
