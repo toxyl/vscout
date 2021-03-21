@@ -2,11 +2,11 @@
 
 A pen testing tool to evaluate firewall rules.
 
-## Important
-Use this at your own risk! Since **IPChanger** messes with your network settings there might be situations where your networking breaks. I've had issues with that in the past when using **TorGhost**. My fork fixes some of them, but there might be more lurking. Consider yourself warned!  
-
-This will remove any existing installation of `apache2` and any `index.*` file in the `WEB_DIR`!
-
+## WARNING!
+Use this at your own risk!  
+  
+Using this on a virtual machine (or a separate server) is highly recommended as the installer will make a couple of changes to the OS installation such as removing (without confirmation!) any existing installation of `apache2` and replacing it with `nginx`. It will also install the **IPChanger** service which is used to route every connection through Tor and switch your IP every 5 minutes. Since **IPChanger** messes with your network settings there might be situations where your networking breaks. I've had issues with that in the past when using **TorGhost**. My fork fixes some of them, but there might be more lurking. Consider yourself warned!  
+    
 This document is a work in progress and will probably miss some things and have a few bugs itself, feel free to suggest corrections / additions.
 
 ## Prerequisites
