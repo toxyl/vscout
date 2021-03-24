@@ -50,11 +50,54 @@
          */
         static public function config() 
         { 
+            $iface = SERVER_INTERFACE;
+            $traffic = explode("\n", trim(`cat /proc/net/dev | grep $iface | awk -v OFMT='%.10f' '{ print $2/1024/1024 } END{ print $10/1024/1024 } END{ print ($2+$10)/1024/1024 }'`));
+            $traffic[] = time();
+
+            foreach ($traffic as &$t) 
+            {
+                $t = floatval($t);
+            }
+            
+            $file_traffic = '/tmp/traffic.json';
+            $old_traffic = file_exists($file_traffic) ? json_decode(file_get_contents($file_traffic)) : $traffic;
+            file_put_contents($file_traffic, json_encode($traffic));
+
+            $t_rx = $traffic[0];
+            $t_tx = $traffic[1];
+            $t_total = $traffic[2];
+
+            $td_t = max(1,$traffic[3] - $old_traffic[3]); // in s
+            $td_rx = ($t_rx - $old_traffic[0]) / $td_t; // mega bytes per second
+            $td_tx = ($t_tx - $old_traffic[1]) / $td_t; // mega bytes per second
+            $td_total = ($t_total - $old_traffic[2]) / $td_t; // mega bytes per second
+
+            $fGetUnit = function ($v) { return $v < 1 ? "KB" : ($v >= 1024 ? "GB" : "MB"); };
+            $fFormatVal = function ($v) { return sprintf('%.2f', $v < 1 ? $v * 1024 : ($v >= 1024 ? $v / 1024 : $v)); };
+
+            $t_rx_unit       = $fGetUnit($t_rx);
+            $t_tx_unit       = $fGetUnit($t_tx);  
+            $t_total_unit    = $fGetUnit($t_total);  
+
+            $t_rx            = $fFormatVal($t_rx);
+            $t_tx            = $fFormatVal($t_tx);
+            $t_total         = $fFormatVal($t_total);
+
+            $td_rx_unit      = $fGetUnit($td_rx) . "/s";
+            $td_tx_unit      = $fGetUnit($td_tx) . "/s";  
+            $td_total_unit   = $fGetUnit($td_total) . "/s";  
+
+            $td_rx           = $fFormatVal($td_rx);
+            $td_tx           = $fFormatVal($td_tx);
+            $td_total        = $fFormatVal($td_total);
+
             $ip = CommandIO::exec("curl --silent " . IP_CHECK_URL);
             Response::html_file('config', [ 
                 "current_dir" => `pwd`,
                 "os" => `uname -som`,
                 "user" => `whoami`,
+                "traffic" => "Total: $t_total $t_total_unit<br>&nbsp;&nbsp;&nbsp;RX: $t_rx $t_rx_unit<br>&nbsp;&nbsp;&nbsp;TX: $t_tx $t_tx_unit",
+                "avgtraffic" => "Total: $td_total $td_total_unit<br>&nbsp;&nbsp;&nbsp;RX: $td_rx $td_rx_unit<br>&nbsp;&nbsp;&nbsp;TX: $td_tx $td_tx_unit",
                 "ip" => (Scout::blacklisted() ? '[BLACKLISTED] ' . $ip : $ip) . ' (' . CommandIO::exec("whois $ip | grep country -i -m 1 | cut -d ':' -f 2 | xargs") . ')',
                 "ips" => `hostname -I | perl -pe 's@ @<br>@g'`,
                 "load" => `cat /proc/loadavg | perl -pe 's@([^\\s]+) ([^\\s]+) ([^\\s]+) .*@&nbsp;1m: \\1<br>&nbsp;5m: \\2<br>15m: \\3<br>@g'`,

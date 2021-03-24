@@ -13,6 +13,9 @@
 	// Settings for the NginX server.
 	// Note that after changing these you will have to run the installer again.
 	"server": {
+		// This is the interface that is used for traffic stats.
+		"interface": "eth0",
+
 		// This is the IP NginX will listen om.
 		"ip": "127.0.0.1",
 

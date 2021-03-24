@@ -12,6 +12,7 @@ class Config
 
 			self::$data = json_decode($cfg_stripped, true); # load file, strip comments, decode as assoc array
 
+			define('SERVER_INTERFACE',     	self::$data["server"]["interface"]);
 			define('SERVER_IP',     	  	self::$data["server"]["ip"]);
 			define('SERVER_PORT',     		self::$data["server"]["port"]);
 			define('SERVER_WHITELIST',    	implode(", ", self::$data["server"]["whitelist"]));

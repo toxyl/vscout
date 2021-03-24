@@ -30,9 +30,12 @@
 	<tr><th>Public IP</th><td>{{ $ip }}</td></tr>
 	<tr><th>IPs</th><td>{{ $ips }}</td></tr>
 	<tr><th>Load average</th><td>{{ $load }}</td></tr>
+	<tr><th>Accumulated traffic</th><td>{{ $traffic }}</td></tr>
+	<tr><th>Average traffic</th><td>{{ $avgtraffic }}</td></tr>
 	<tr><th colspan="2">&nbsp;</th></tr>
 
 	<tr><th colspan="2"><h2>Server</h2></th></tr>
+	<tr><th>Interface</th><td>{{ SERVER_INTERFACE }}</td></tr>
 	<tr><th>Address</th><td>http://{{ SERVER_IP }}:{{ SERVER_PORT }}</td></tr>
 	<tr><th>Whitelist</th><td>{{ $whitelist }}</td></tr>
 	<tr><th colspan="2">&nbsp;</th></tr>
