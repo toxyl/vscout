@@ -93,7 +93,7 @@ class Stats
         return ' ' . self::format_row($data);
     }
 
-    static private function header(&$out, $lbl, $lbltall = '', $lblt5m = '', $lblt15m = '', $lblt1h = '', $lblt1d = '', $lblspeed = '')
+    static private function header(&$out, $lbl, $lbltall = '', $lblt5m = '', $lblt15m = '', $lblt1h = '', $lblt1d = '', $lblspeed = '', $lblspeedday = '')
     {
         $out[] = self::header_format([
                     ["%12s", $lbl],
@@ -102,7 +102,9 @@ class Stats
                     ["%10s", $lblt15m],
                     ["%10s", $lblt1h],
                     ["%10s", $lblt1d],
-                    ["%35s", $lblspeed]
+                    ["%33s", $lblspeed],
+                    ["%33s", $lblspeedday],
+                    ["%3s", '+/-'],
                 ]);
     }
 
@@ -135,7 +137,7 @@ class Stats
                     ["%10d",           $v[4]], 
                     ["%10.2f / min",   $v[5]],
                     ["%10d / day",     $v[6]],
-                    ["%s",             $delta > 0 ? '-' : ($delta == 0 ? ' ' : '+')]
+                    ["%3s",             $delta > 0 ? '-' : ($delta == 0 ? ' ' : '+')]
                 ]);
         return $v;
     }
@@ -152,27 +154,15 @@ class Stats
 
         $response[] = Router::is_cli() ? "\n" : "<table>";
 
-        $load = self::load_averages();
-
         $response[] = self::header_format([
-            ['%10s',    'Workers'],
-            ['%27s' ,   'Load Average:'],
-            ['%6s',     '1m'],
-            ['%6s',     '5m'],
-            ['%6s',     '15m'],
-            ['%22s',    'Domains:'],
+            ['%22s',    'Domains'],
             ['%6s',     'Active'],
             ['%6s',     'FW'],
             ['%6s',     'Dead']
         ]);
 
         $response[] = self::line_format([
-            ['%10d',     Daemon::active()],
-            ['%27s',     ''],
-            ['%5d%%',    $load['1m'] * 100],
-            ['%5d%%',    $load['5m'] * 100],
-            ['%5d%%',    $load['15m'] * 100],
-            ['%22s',     ''],
+            ['%22d',     array_sum(array_values($s['domains']))],
             ['%6d',      $s['domains']['active']],
             ['%6d',      $s['domains']['firewalled']],
             ['%6d',      $s['domains']['dead']]
@@ -180,7 +170,7 @@ class Stats
 
         $response[] = Router::is_cli() ? "\n" : "</table><br><table>";
 
-        self::header($response, 'Status Codes', 'Total', '5m', '15m', '1h', '1d', 'average speed (based on 1h)');
+        self::header($response, 'Status Codes', 'Total', '5m', '15m', '1h', '1d', 'average speed / min (based on 1h)', 'average speed / day (based on 1h)');
 
         $v1xx = self::line_status_code($response, '1xx',   '1xx', $sall, $s5m, $s15m, $s1h, $s1d);
         $v2xx = self::line_status_code($response, '2xx',   '2xx', $sall, $s5m, $s15m, $s1h, $s1d);
