@@ -22,6 +22,7 @@
     #[core/Response]#
     #[core/Router]#
     #[core/Routes]#
+    #[core/OS]#
 
     #[data/Data]#
     #[data/Database]#
@@ -50,57 +51,64 @@
          */
         static public function config() 
         { 
-            $iface = SERVER_INTERFACE;
-            $traffic = explode("\n", trim(`cat /proc/net/dev | grep $iface | awk -v OFMT='%.10f' '{ print $2/1024/1024 } END{ print $10/1024/1024 } END{ print ($2+$10)/1024/1024 }'`));
-            $traffic[] = time();
+            $traffic = OS::traffic();
+            $load_avg = OS::load_average();
+            $public_ip = OS::public_ip();
+            $memory = OS::memory();
+            $disk = OS::diskspace();
+            $workers = OS::workers_count();
+            $cpu = OS::cpu();
 
-            foreach ($traffic as &$t) 
-            {
-                $t = floatval($t);
-            }
-            
-            $file_traffic = '/tmp/traffic.json';
-            $old_traffic = file_exists($file_traffic) ? json_decode(file_get_contents($file_traffic)) : $traffic;
-            file_put_contents($file_traffic, json_encode($traffic));
+            $fmtHTML = function($v) { return str_replace("\n", '<br>', str_replace(' ', '&nbsp;', $v)); };
+            $fmtRow = function ($name, $value, $unit) { return sprintf('%5s: %7.2f %s', $name, $value, $unit)  . "\n"; };
 
-            $t_rx = $traffic[0];
-            $t_tx = $traffic[1];
-            $t_total = $traffic[2];
+            $sCPU = $fmtHTML(sprintf('%d cores @ %d MHz', $cpu['cores'], $cpu['MHz']) . "\n");
 
-            $td_t = max(1,$traffic[3] - $old_traffic[3]); // in s
-            $td_rx = ($t_rx - $old_traffic[0]) / $td_t; // mega bytes per second
-            $td_tx = ($t_tx - $old_traffic[1]) / $td_t; // mega bytes per second
-            $td_total = ($t_total - $old_traffic[2]) / $td_t; // mega bytes per second
+            $sLoad = $fmtHTML(
+                $fmtRow( "1m", $load_avg["1m"], "%") .
+                $fmtRow( "5m", $load_avg["5m"], "%") .
+                $fmtRow("15m", $load_avg["15m"], "%")
+            );
 
-            $fGetUnit = function ($v) { return $v < 1 ? "KB" : ($v >= 1024 ? "GB" : "MB"); };
-            $fFormatVal = function ($v) { return sprintf('%.2f', $v < 1 ? $v * 1024 : ($v >= 1024 ? $v / 1024 : $v)); };
+            $sDisk = $fmtHTML( 
+                $fmtRow("Total", $disk["total"]['value'], $disk["total"]['unit']) .
+                $fmtRow( "Used", $disk["used"]['value'],  $disk["used"]['unit']) .
+                $fmtRow( "Free", $disk["free"]['value'],  $disk["free"]['unit'])
+            );
 
-            $t_rx_unit       = $fGetUnit($t_rx);
-            $t_tx_unit       = $fGetUnit($t_tx);  
-            $t_total_unit    = $fGetUnit($t_total);  
+            $sMem = $fmtHTML( 
+                $fmtRow("Total", $memory["total"]['value'], $memory["total"]['unit']) .
+                $fmtRow( "Used", $memory["used"]['value'],  $memory["used"]['unit']) .
+                $fmtRow( "Free", $memory["free"]['value'],  $memory["free"]['unit'])
+            );
 
-            $t_rx            = $fFormatVal($t_rx);
-            $t_tx            = $fFormatVal($t_tx);
-            $t_total         = $fFormatVal($t_total);
+            $sTrafficAcc = $fmtHTML( 
+                $fmtRow("Total", $traffic['accumulated']["total"]['value'], $traffic['accumulated']["total"]['unit']) .
+                $fmtRow(   "RX", $traffic['accumulated']["rx"]['value'],    $traffic['accumulated']["rx"]['unit']) .
+                $fmtRow(   "TX", $traffic['accumulated']["tx"]['value'],    $traffic['accumulated']["tx"]['unit'])
+            );
 
-            $td_rx_unit      = $fGetUnit($td_rx) . "/s";
-            $td_tx_unit      = $fGetUnit($td_tx) . "/s";  
-            $td_total_unit   = $fGetUnit($td_total) . "/s";  
+            $sTrafficAvg = $fmtHTML( 
+                $fmtRow("Total", $traffic['average']["total"]['value'], $traffic['average']["total"]['unit']) .
+                $fmtRow(   "RX", $traffic['average']["rx"]['value'],    $traffic['average']["rx"]['unit']) .
+                $fmtRow(   "TX", $traffic['average']["tx"]['value'],    $traffic['average']["tx"]['unit'])
+            );
 
-            $td_rx           = $fFormatVal($td_rx);
-            $td_tx           = $fFormatVal($td_tx);
-            $td_total        = $fFormatVal($td_total);
+            $sIP = $public_ip['ip'] == '' ? 'N/A' : ($public_ip['blacklisted'] ? '[BLACKLISTED] ' . $public_ip['ip'] : $public_ip['ip']) . ' (' . $public_ip['country'] . ')';
 
-            $ip = CommandIO::exec("curl --silent " . IP_CHECK_URL);
             Response::html_file('config', [ 
-                "current_dir" => `pwd`,
-                "os" => `uname -som`,
-                "user" => `whoami`,
-                "traffic" => "Total: $t_total $t_total_unit<br>&nbsp;&nbsp;&nbsp;RX: $t_rx $t_rx_unit<br>&nbsp;&nbsp;&nbsp;TX: $t_tx $t_tx_unit",
-                "avgtraffic" => "Total: $td_total $td_total_unit<br>&nbsp;&nbsp;&nbsp;RX: $td_rx $td_rx_unit<br>&nbsp;&nbsp;&nbsp;TX: $td_tx $td_tx_unit",
-                "ip" => (Scout::blacklisted() ? '[BLACKLISTED] ' . $ip : $ip) . ' (' . CommandIO::exec("whois $ip | grep country -i -m 1 | cut -d ':' -f 2 | xargs") . ')',
-                "ips" => `hostname -I | perl -pe 's@ @<br>@g'`,
-                "load" => `cat /proc/loadavg | perl -pe 's@([^\\s]+) ([^\\s]+) ([^\\s]+) .*@&nbsp;1m: \\1<br>&nbsp;5m: \\2<br>15m: \\3<br>@g'`,
+                "current_dir" => OS::pwd(),
+                "os" => OS::type(),
+                "user" => OS::user(),
+                "traffic" => $sTrafficAcc,
+                "avgtraffic" => $sTrafficAvg,
+                "cpu" => $sCPU,
+                "mem" => $sMem,
+                "disk" => $sDisk,
+                "ip" => $sIP,
+                "ips" => implode('<br>', OS::ips()),
+                "load" => $sLoad,
+                "workers" => $workers,
                 "whitelist" => implode("<br>", explode(", ", SERVER_WHITELIST))
             ], 
             10); 
@@ -212,6 +220,37 @@
          * the required service. You only have to run this once.
          */
         static public function install() { Installer::install(); }
+
+        /**
+         * @ACL CLI
+         * 
+         * Flushes iptables and writes default settings. 
+         * Useful if ipchanger did not shutdown properly.
+         */
+        static public function iptables_reset(bool $open_munin_port = true) 
+        { 
+            CommandIO::exec("systemctl stop ipchanger");
+            CommandIO::exec("iptables-legacy -P INPUT ACCEPT");
+            CommandIO::exec("iptables-legacy -P FORWARD ACCEPT");
+            CommandIO::exec("iptables-legacy -P OUTPUT ACCEPT");
+            CommandIO::exec("iptables-legacy -t nat -F");
+            CommandIO::exec("iptables-legacy -t mangle -F");
+            CommandIO::exec("iptables-legacy -F");
+            CommandIO::exec("iptables-legacy -X");
+            if ($open_munin_port)
+                CommandIO::exec("iptables-legacy -A INPUT -p tcp --dport 4949 -j ACCEPT"); 
+        }
+
+        /**
+         * @ACL CLI
+         * 
+         * Resets resolv.conf to Google nameservers. 
+         * Useful if ipchanger did not shutdown properly.
+         */
+        static public function resolvconf_reset() 
+        { 
+            file_put_contents('/etc/resolv.conf', "nameserver 8.8.8.8\nnameserver 8.8.4.4");
+        }
 	}
 
     // shutdown handler to make sure we close DB connections

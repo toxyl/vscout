@@ -17,21 +17,29 @@
     }
 </style>
 <table>
+	<!--
 	<tr><th colspan="2"><h2>Directories</h2></th></tr>
 	<tr><th>Current dir</th><td>{{ $current_dir }}</td></tr>
 	<tr><th>Binary dir</th><td>{{ BIN_DIR }}</td></tr>
 	<tr><th>Web dir</th><td>{{ WEB_DIR }}</td></tr>
 	<tr><th>Data dir</th><td>{{ DATA_DIR }}</td></tr>
 	<tr><th colspan="2">&nbsp;</th></tr>
-	
+	--> 
+
 	<tr><th colspan="2"><h2>System</h2></th></tr>
+	<!--
 	<tr><th>OS</th><td>{{ $os }}</td></tr>
 	<tr><th>Current user</th><td>{{ $user }}</td></tr>
+	-->
+	<tr><th>Active workers</th><td>{{ $workers }}</td></tr>
 	<tr><th>Public IP</th><td>{{ $ip }}</td></tr>
 	<tr><th>IPs</th><td>{{ $ips }}</td></tr>
+	<tr><th>CPU</th><td>{{ $cpu }}</td></tr>
 	<tr><th>Load average</th><td>{{ $load }}</td></tr>
-	<tr><th>Accumulated traffic</th><td>{{ $traffic }}</td></tr>
-	<tr><th>Average traffic</th><td>{{ $avgtraffic }}</td></tr>
+	<tr><th>Memory</th><td>{{ $mem }}</td></tr>
+	<tr><th>Disk(s)</th><td>{{ $disk }}</td></tr>
+    <tr><th>Traffic<br>accumulated</th><td>{{ $traffic }}</td></tr>
+    <tr><th>Traffic<br>average</th><td>{{ $avgtraffic }}</td></tr>
 	<tr><th colspan="2">&nbsp;</th></tr>
 
 	<tr><th colspan="2"><h2>Server</h2></th></tr>
