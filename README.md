@@ -64,6 +64,9 @@ If you want to run it continuously you have to login to your server and start th
 **VScout** automatically manages workers, i.e. it will spawn and kill them as needed. It does so based on the average load of the system and the configuration in `config.json`.  You can define the minimum amount of workers the daemon will always keep running and the maximum it will spawn. The daemon will spawn a worker if the 5m average load falls below the `workers -> spawn_threshold` and will kill one if the 5m average load goes beyond the `workers -> destroy_threshold`. It checks every `workers -> update_time` seconds whether it needs to spawn or kill a worker. If the 5m average load is between the two it will leave the workers alone.  
 The daemon will also update the stats every `database -> stats_update_time` seconds. You can set this value quite low in the beginning but as your database grows you will have to increase it to not overload your server. 
 
+### Data Retention
+When running over long periods of time or with many workers the database will fill up quickly and degrade in performance the more records are collection. To deal with this **Vscout** has a data retention policy that by default removes data older than a day on a regular schedule. Stats like the total number of clicks will be retained separately and are not affected by the data retention policy. You can change the schedule using `database -> data_retention` in `config.json`.
+
 ### Logging  
 Once the daemon has started you can follow its output using `journalctl -u vscout -f`. 
 By default you will only see messages when workers are added or removed and when stats have been updated. If you want to see all URLs VScout is testing you have to enable `log -> responses` in `config.json`. It will then log the URL and a few pieces of information about the response like status code and target's IP. The format for these messages is:
