@@ -65,7 +65,7 @@ If you want to run it continuously you have to login to your server and start th
 The daemon will also update the stats every `database -> stats_update_time` seconds. You can set this value quite low in the beginning but as your database grows you will have to increase it to not overload your server. 
 
 ### Data Retention
-When running over long periods of time or with many workers the database will fill up quickly and degrade in performance the more records are collection. To deal with this **Vscout** has a data retention policy that by default removes data older than a day on a regular schedule. Stats like the total number of clicks will be retained separately and are not affected by the data retention policy. You can change the schedule using `database -> data_retention` in `config.json`.
+When running over long periods of time or with many workers the database will fill up quickly and degrade in performance the more records are collected. To deal with this **Vscout** has a data retention policy that by default removes data older than a day on a regular schedule. Stats like the total number of clicks will be retained separately and are not affected by the data retention policy. You can change the schedule using `database -> data_retention` in `config.json`.
 
 ### Logging  
 Once the daemon has started you can follow its output using `journalctl -u vscout -f`. 
