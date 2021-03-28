@@ -57,9 +57,9 @@
             return $records;
         }
 
-        public function update_stats()
-        {
-            $this->execute("BEGIN EXCLUSIVE;
+        private static $last_stats_update = null;
+        private static $count_stats_updates = 0;
+        private static $sql_stats_update = "BEGIN EXCLUSIVE;
                 DROP TABLE IF EXISTS t5xx_1d;
                 DROP TABLE IF EXISTS t5xx_1h;
                 DROP TABLE IF EXISTS t5xx_15m;
@@ -181,13 +181,111 @@
                     t4xx_5m,
                     t5xx_5m
                 ;
-                COMMIT;"
-            );
+
+                CREATE TABLE IF NOT EXISTS stats_history (
+                    ts    DATE DEFAULT CURRENT_TIMESTAMP,
+                    total INTEGER DEFAULT 0,
+                    total_1xx INTEGER DEFAULT 0,
+                    total_2xx INTEGER DEFAULT 0,
+                    total_3xx INTEGER DEFAULT 0,
+                    total_4xx INTEGER DEFAULT 0,
+                    total_5xx INTEGER DEFAULT 0,
+                    avg_s NUMERIC DEFAULT 0,
+                    avg_m NUMERIC DEFAULT 0,
+                    avg_h NUMERIC DEFAULT 0,
+                    avg_d NUMERIC DEFAULT 0
+                );
+
+                COMMIT;";
+
+        public function update_stats()
+        {
+            $rbefore = $this->query('SELECT * FROM stats LIMIT 1');
+            $rbefore = @$rbefore->fetchArray(SQLITE3_ASSOC) ?? [];
+
+            $this->execute(self::$sql_stats_update);
+
+            $rafter = $this->query('SELECT * FROM stats LIMIT 1');
+            $rafter = @$rafter->fetchArray(SQLITE3_ASSOC) ?? [];
+
+            $last_stats_update_delta = 0;
+            if (self::$last_stats_update)
+            {
+                $last_stats_update_delta = time() - self::$last_stats_update;
+
+                if (count($rbefore) == 0)
+                {
+                    $v = [
+                        'total_1xx' => 0,
+                        'total_2xx' => 0,
+                        'total_3xx' => 0,
+                        'total_4xx' => 0,
+                        'total_5xx' => 0,
+                    ];
+                } 
+                else
+                {
+                    $v = [
+                        'total_1xx' => ($rafter['total_1xx'] ?? 0) - ($rbefore['total_1xx'] ?? 0),
+                        'total_2xx' => ($rafter['total_2xx'] ?? 0) - ($rbefore['total_2xx'] ?? 0),
+                        'total_3xx' => ($rafter['total_3xx'] ?? 0) - ($rbefore['total_3xx'] ?? 0),
+                        'total_4xx' => ($rafter['total_4xx'] ?? 0) - ($rbefore['total_4xx'] ?? 0),
+                        'total_5xx' => ($rafter['total_5xx'] ?? 0) - ($rbefore['total_5xx'] ?? 0),
+                    ];
+                }
+                $v['total'] = array_sum(array_values($v));
+                $v['avg_s'] = $last_stats_update_delta <= 0 ? 0 : $v['total'] / $last_stats_update_delta;
+                $v['avg_m'] = $last_stats_update_delta <= 0 ? 0 : $v['avg_s'] * 60;
+                $v['avg_h'] = $last_stats_update_delta <= 0 ? 0 : $v['avg_m'] * 60;
+                $v['avg_d'] = $last_stats_update_delta <= 0 ? 0 : $v['avg_h'] * 24;
+            
+                $this->exec("INSERT INTO stats_history(total, total_1xx, total_2xx, total_3xx, total_4xx, total_5xx, avg_s, avg_m, avg_h, avg_d) VALUES(".
+                    $v['total'].", ".
+                    $v['total_1xx'].", ".
+                    $v['total_2xx'].", ".
+                    $v['total_3xx'].", ".
+                    $v['total_4xx'].", ".
+                    $v['total_5xx'].", ".
+                    $v['avg_s'].", ".
+                    $v['avg_m'].", ".
+                    $v['avg_h'].", ".
+                    $v['avg_d'].");"
+                );
+            }
+
+            self::$last_stats_update = null;
+
+            if (self::$count_stats_updates < 10)
+            {
+                self::$last_stats_update = time();
+                self::$count_stats_updates++;
+            }
+            else
+            {
+                // clean DB
+                $this->execute("DELETE FROM clicks WHERE ts IS NOT NULL AND ts <= datetime('now',  '-".DATA_RETENTION."');");
+                $this->execute(self::$sql_stats_update);
+
+                self::$count_stats_updates = 0;
+            }
         }
 
         public function get_stats(string $fields = '*')
         {
-            return $this->get('SELECT '.$fields.' FROM stats;');
+            $stats = $this->get('SELECT '.$fields.' FROM stats;');
+            $rsum = $this->query('SELECT SUM(total_1xx) AS total_1xx, SUM(total_2xx) AS total_2xx, SUM(total_3xx) AS total_3xx, SUM(total_4xx) AS total_4xx, SUM(total_5xx) AS total_5xx FROM stats_history');
+            $rsum = @$rsum->fetchArray(SQLITE3_ASSOC) ?? null;
+
+            if ($rsum)
+            {
+                $stats[0][3] = $rsum['total_1xx'];
+                $stats[0][4] = $rsum['total_2xx'];
+                $stats[0][5] = $rsum['total_3xx'];
+                $stats[0][6] = $rsum['total_4xx'];
+                $stats[0][7] = $rsum['total_5xx'];
+            }
+
+            return $stats;
         }
 
         public function get_results_by_status_code(int $min = 500, int $max = 500)

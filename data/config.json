@@ -66,7 +66,10 @@
 		"insert_buffer_flush_time": 120,
 
 		// Time (in seconds) between stats updates. 
-		"stats_update_time": 300
+		"stats_update_time": 300,
+
+		// Data older than this will be periodically removed.
+		"data_retention": "1 day"
 	},
 
 	// Define files to use for template data. 

@@ -89,9 +89,9 @@
             );
 
             $sTrafficAvg = $fmtHTML( 
-                $fmtRow("Total", $traffic['average']["total"]['value'], $traffic['average']["total"]['unit']) .
-                $fmtRow(   "RX", $traffic['average']["rx"]['value'],    $traffic['average']["rx"]['unit']) .
-                $fmtRow(   "TX", $traffic['average']["tx"]['value'],    $traffic['average']["tx"]['unit'])
+                $fmtRow("Total", $traffic['average']["total"]['value'], $traffic['average']["total"]['unit'] . "/s") .
+                $fmtRow(   "RX", $traffic['average']["rx"]['value'],    $traffic['average']["rx"]['unit'] . "/s") .
+                $fmtRow(   "TX", $traffic['average']["tx"]['value'],    $traffic['average']["tx"]['unit'] . "/s")
             );
 
             $sIP = $public_ip['ip'] == '' ? 'N/A' : ($public_ip['blacklisted'] ? '[BLACKLISTED] ' . $public_ip['ip'] : $public_ip['ip']) . ' (' . $public_ip['country'] . ')';

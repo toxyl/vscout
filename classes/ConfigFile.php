@@ -29,6 +29,7 @@ class Config
 			define('EXEC_BUFFER_SIZE',      self::$data["database"]["insert_buffer_size"]);
 			define('EXEC_BUFFER_TIME',      self::$data["database"]["insert_buffer_flush_time"]);
 			define('STATS_UPDATE',          self::$data["database"]["stats_update_time"]);
+			define('DATA_RETENTION',        self::$data["database"]["data_retention"]);
 			define('FILE_IP_BLACKLIST',     self::$data["files"]["ip_blacklist"]);
 			define('FILE_USER_AGENTS',      self::$data["files"]["user_agents"]);
 			define('FILE_USERNAMES',        self::$data["files"]["user_names"]);
