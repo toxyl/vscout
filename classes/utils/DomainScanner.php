@@ -55,7 +55,12 @@
         }
 
         static public function update()
-        {
+        {   
+            // force loading domains from domains.txt,
+            // so domains from it that are not yet in the database 
+            // will be rescanned as well
+            $fd = new RandomData(FILE_DOMAINS);
+
             $domains = array_map(function ($r) {
                 return $r[0];
             }, Data::select('domain', ['name'], [ ], 0));
