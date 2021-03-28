@@ -37,7 +37,14 @@ class Scout
 
     static public function ip(string $url) 
     {
+        if (preg_match('/^(https:\/\/|http:\/\/|)(localhost)(\/.*|)$/', $url))
+            return '127.0.0.1';
+
         $domain = preg_replace('/^(https:\/\/|http:\/\/|)(.+?)(\/.*|)$/', '$2', $url);
+        
+        if (preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/', $domain))
+            return $domain;
+
         if (Data::has_record("domain", [ "name" => $domain ]))
         {
             $res = Data::select('domain', ['name', 'ip'], ['name' => $domain]);
@@ -126,7 +133,7 @@ class Scout
         
     static public function click($url) 
     {
-        if (preg_match('/(http|https):\/\/[a-zA-Z0-9_\-\.]+?\.[a-zA-Z]{2,6}\/.*/', $url))
+        if (preg_match('/(http|https):\/\/([a-zA-Z0-9_\-\.]+?\.[a-zA-Z]{2,6}|localhost|\d+\.\d+\.\d+\.\d+)\/.*/', $url))
         {
             $res = self::process($url);
             
