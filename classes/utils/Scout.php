@@ -30,7 +30,7 @@ class Scout
         }
 
         if ($use_proychains)
-            $cmd = 'proxychains ' . $cmd . " 2>&1 | grep -v 'ProxyChains-' | grep -v 'S-chain' | grep -v 'DNS-request' | grep -v 'DNS-response'";
+            $cmd = 'proxychains ' . $cmd . " 2>&1 | grep -Ev 'ProxyChains-|S-chain|DNS-request|DNS-response'";
         
         return CommandIO::exec($cmd);
     }
