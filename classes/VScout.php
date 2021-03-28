@@ -116,6 +116,7 @@
 
             if (TOR_MODE && $public_ip['ip'] == '')
             {
+                $sIP = 'Requesting new circuit...';
                 // looks like the current circuit is not working properly,
                 // let's request a new one
                 CommandIO::exec('ipchanger -r');
