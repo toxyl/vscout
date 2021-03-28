@@ -114,6 +114,13 @@
 
             $sIP = $public_ip['ip'] == '' ? 'N/A' : ($public_ip['blacklisted'] ? '[BLACKLISTED] ' . $public_ip['ip'] : $public_ip['ip']) . ' (' . $public_ip['country'] . ')';
 
+            if (TOR_MODE && $public_ip['ip'] == '')
+            {
+                // looks like the current circuit is not working properly,
+                // let's request a new one
+                CommandIO::exec('ipchanger -r');
+            }
+
             Response::html_file('config', [ 
                 "current_dir" => OS::pwd(),
                 "os" => OS::type(),
