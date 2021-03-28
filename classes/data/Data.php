@@ -239,6 +239,22 @@
             self::exec("DELETE FROM $table WHERE $where;", $db_file);
         }
 
+        static public function avg_clicks()
+        {
+            if (self::$db == null)
+                self::$db = new Database();
+            $ravg = self::$db->query('SELECT AVG(avg_s) AS avg_s, AVG(avg_m) AS avg_m, AVG(avg_h) AS avg_h, AVG(avg_d) AS avg_d FROM stats_history');
+            return @$ravg->fetchArray(SQLITE3_ASSOC) ?? null;
+        }
+
+        static public function total_clicks()
+        {
+            if (self::$db == null)
+                self::$db = new Database();
+            $rsum = self::$db->query('SELECT SUM(total) AS total, SUM(total_1xx) AS total_1xx, SUM(total_2xx) AS total_2xx, SUM(total_3xx) AS total_3xx, SUM(total_4xx) AS total_4xx, SUM(total_5xx) AS total_5xx FROM stats_history');
+            return @$rsum->fetchArray(SQLITE3_ASSOC) ?? null;
+        }
+
         static public function stats(string $fields = '*')
         {
             if (self::$db == null)

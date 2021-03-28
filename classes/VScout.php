@@ -58,9 +58,27 @@
             $disk = OS::diskspace();
             $workers = OS::workers_count();
             $cpu = OS::cpu();
+            $click_avg = Data::avg_clicks();
+            $click_total = Data::total_clicks();
 
             $fmtHTML = function($v) { return str_replace("\n", '<br>', str_replace(' ', '&nbsp;', $v)); };
             $fmtRow = function ($name, $value, $unit) { return sprintf('%5s: %7.2f %s', $name, $value, $unit)  . "\n"; };
+
+            $sClicks = $fmtHTML(
+                $fmtRow( "sec", $click_avg["avg_s"], "req/s") .
+                $fmtRow( "min", $click_avg["avg_m"], "req/m") .
+                $fmtRow( "hour", $click_avg["avg_h"], "req/h") .
+                $fmtRow( "day", $click_avg["avg_d"], "req/d")
+            );
+
+            $sClicksTotal = $fmtHTML(
+                $fmtRow( "Total", $click_total["total"], "") .
+                $fmtRow( "1xx", $click_total["total_1xx"], "") .
+                $fmtRow( "2xx", $click_total["total_2xx"], "") .
+                $fmtRow( "3xx", $click_total["total_3xx"], "") .
+                $fmtRow( "4xx", $click_total["total_4xx"], "") .
+                $fmtRow( "5xx", $click_total["total_5xx"], "")
+            );
 
             $sCPU = $fmtHTML(sprintf('%d cores @ %d MHz', $cpu['cores'], $cpu['MHz']) . "\n");
 
@@ -102,6 +120,8 @@
                 "user" => OS::user(),
                 "traffic" => $sTrafficAcc,
                 "avgtraffic" => $sTrafficAvg,
+                "requests" => $sClicksTotal,
+                "avgrequests" => $sClicks,
                 "cpu" => $sCPU,
                 "mem" => $sMem,
                 "disk" => $sDisk,
