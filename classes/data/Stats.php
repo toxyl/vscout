@@ -1,9 +1,9 @@
 <?php
 class Stats
 {
-    static private function retrieve(string $fields = '*')
+    static private function retrieve()
     {
-        $stats = Data::stats($fields);
+        $stats = Data::stats("active, firewalled, dead, `1d_1xx`, `1d_2xx`, `1d_3xx`, `1d_4xx`, `1d_5xx`, `1h_1xx`, `1h_2xx`, `1h_3xx`, `1h_4xx`, `1h_5xx`, `15m_1xx`, `15m_2xx`, `15m_3xx`, `15m_4xx`, `15m_5xx`, `5m_1xx`, `5m_2xx`, `5m_3xx`, `5m_4xx`, `5m_5xx`");
         $stats = $stats[0] ?? [];
 
         return [ 
@@ -14,32 +14,32 @@ class Stats
             ], 
             'status_codes' => [
                 '1d'         => [
+                    '1xx'        => $stats[3] ?? 0,
+                    '2xx'        => $stats[4] ?? 0,
+                    '3xx'        => $stats[5] ?? 0,
+                    '4xx'        => $stats[6] ?? 0,
+                    '5xx'        => $stats[7] ?? 0,
+                ],
+                '1h'         => [
                     '1xx'        => $stats[8] ?? 0,
                     '2xx'        => $stats[9] ?? 0,
                     '3xx'        => $stats[10] ?? 0,
                     '4xx'        => $stats[11] ?? 0,
                     '5xx'        => $stats[12] ?? 0,
                 ],
-                '1h'         => [
+                '15m'         => [
                     '1xx'        => $stats[13] ?? 0,
                     '2xx'        => $stats[14] ?? 0,
                     '3xx'        => $stats[15] ?? 0,
                     '4xx'        => $stats[16] ?? 0,
                     '5xx'        => $stats[17] ?? 0,
                 ],
-                '15m'         => [
+                '5m'         => [
                     '1xx'        => $stats[18] ?? 0,
                     '2xx'        => $stats[19] ?? 0,
                     '3xx'        => $stats[20] ?? 0,
                     '4xx'        => $stats[21] ?? 0,
                     '5xx'        => $stats[22] ?? 0,
-                ],
-                '5m'         => [
-                    '1xx'        => $stats[23] ?? 0,
-                    '2xx'        => $stats[24] ?? 0,
-                    '3xx'        => $stats[25] ?? 0,
-                    '4xx'        => $stats[26] ?? 0,
-                    '5xx'        => $stats[27] ?? 0,
                 ],
             ], 
         ];

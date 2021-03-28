@@ -200,12 +200,12 @@
 
         public function update_stats()
         {
-            $rbefore = $this->query('SELECT * FROM stats LIMIT 1');
+            $rbefore = $this->query('SELECT total_1xx, total_2xx, total_3xx, total_4xx, total_5xx FROM stats LIMIT 1');
             $rbefore = @$rbefore->fetchArray(SQLITE3_ASSOC) ?? [];
 
             $this->execute(self::$sql_stats_update);
 
-            $rafter = $this->query('SELECT * FROM stats LIMIT 1');
+            $rafter = $this->query('SELECT total_1xx, total_2xx, total_3xx, total_4xx, total_5xx FROM stats LIMIT 1');
             $rafter = @$rafter->fetchArray(SQLITE3_ASSOC) ?? [];
 
             $last_stats_update_delta = 0;
@@ -272,20 +272,7 @@
 
         public function get_stats(string $fields = '*')
         {
-            $stats = $this->get('SELECT '.$fields.' FROM stats;');
-            $rsum = $this->query('SELECT SUM(total_1xx) AS total_1xx, SUM(total_2xx) AS total_2xx, SUM(total_3xx) AS total_3xx, SUM(total_4xx) AS total_4xx, SUM(total_5xx) AS total_5xx FROM stats_history');
-            $rsum = @$rsum->fetchArray(SQLITE3_ASSOC) ?? null;
-
-            if ($rsum)
-            {
-                $stats[0][3] = $rsum['total_1xx'];
-                $stats[0][4] = $rsum['total_2xx'];
-                $stats[0][5] = $rsum['total_3xx'];
-                $stats[0][6] = $rsum['total_4xx'];
-                $stats[0][7] = $rsum['total_5xx'];
-            }
-
-            return $stats;
+            return $this->get('SELECT '.$fields.' FROM stats;');
         }
 
         public function get_results_by_status_code(int $min = 500, int $max = 500)
