@@ -275,8 +275,8 @@
             return $this->get('SELECT '.$fields.' FROM stats;');
         }
 
-        public function get_results_by_status_code(int $min = 500, int $max = 500)
+        public function get_results_by_status_code(int $min = 500, int $max = 500, int $max_results = 100)
         {
-            return $this->get('SELECT status, prot, domain, path FROM clicks WHERE status >= '.$min.' AND status <= '.$max.';');
+            return $this->get('SELECT status, prot, domain, path FROM clicks WHERE status >= '.$min.' AND status <= '.$max.' LIMIT ' . $max_results . ';');
         }
     }

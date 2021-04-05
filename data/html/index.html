@@ -34,11 +34,26 @@
         table {
             font-size: 11px;
             width: 100%;
+            font-family: monospace;
+            color: white;
+            border-collapse: collapse;
         }
 
         th {
             text-align: left;
             vertical-align: top;
+        }
+
+        .cat-sys:hover, 
+        .cat-srv:hover, 
+        .cat-config:hover, 
+        .cat-placeholders:hover {
+            cursor: pointer;
+            color: red; 
+        }
+
+        .sys, .srv, .config, .help {
+            display: none;
         }
 
         #inURL {
@@ -80,15 +95,27 @@
             left: 0;
             width: 350px;
             border: 0px solid;
+            padding: 10px;
         }
 
         #ifStats {
             position: absolute;
             bottom: 0;
-            left: 350px;
-            right: 0;
-            height: 250px;
+            left: 360px;
+            right: 10px;
+            height: 127px;
             border: 0px solid;
+        }
+
+        #ifstats > table > tbody > tr > th {
+            text-align: right;
+            vertical-align: top;
+            background-color: dimgray;
+            padding: 2px;
+        }
+
+        #ifstats > table > tbody > tr > td {
+            text-align: right;
         }
 
         #urlLookup {
@@ -96,32 +123,155 @@
             top: 10px;
             left: 360px;
             right: 10px;
-            bottom: 290px;
+            bottom: 165px;
             border: 0px solid;
+        }
+
+        #pb {
+            position: absolute;
+            background-color: #797979;
+            top: 0;
+            left: 0;
+            height: 1px;
         }
 
     </style>
     </head>
     <body>
+        <div id="pb"></div>
         <div id='urlLookup'>
             <input id='inURL' onkeydown='lookupURL(event)' placeholder='URL Lookup'>
             <textarea id='urlRes'></textarea>
         </div>
         <div id='ifConfig'>
-            <iframe id='config' src='?config'></iframe>
+            <table>
+                <tr><th colspan="2"><h2 class="cat-sys">System</h2></th></tr>
+
+                <tr class="sys"><th>Active workers</th>             <td id='workers'></td></tr>
+                <tr class="sys"><th>Public IP</th>                  <td id='ip'></td></tr>
+                <tr class="sys"><th>IP(s)</th>                      <td id='ips'></td></tr>
+                <tr class="sys"><th>CPU</th>                        <td id='cpu'></td></tr>
+                <tr class="sys"><th>Load average</th>               <td id='load'></td></tr>
+                <tr class="sys"><th>Memory</th>                     <td id='mem'></td></tr>
+                <tr class="sys"><th>Disk space</th>                 <td id='disk'></td></tr>
+                <tr class="sys"><th>Traffic<br>accumulated</th>     <td id='traffic'></td></tr>
+                <tr class="sys"><th>Traffic<br>average</th>         <td id='avgtraffic'></td></tr>
+                <tr class="sys"><th>Requests<br>average</th>        <td id='avgrequests'></td></tr>
+                <tr class="sys"><th>Responses<br>accumulated</th>   <td id='requests'></td></tr>
+                <tr class="sys"><th>Domains</th>                    <td id='domains'></td></tr>
+                <tr class="sys"><th colspan="2">&nbsp;</th></tr>
+
+                <tr><th colspan="2"><h2 class="cat-srv">Server</h2></th></tr>
+
+                <tr class="srv"><th>Interface</th>                  <td>{{ SERVER_INTERFACE }}</td></tr>
+                <tr class="srv"><th>Address</th>                    <td>http://{{ SERVER_IP }}:{{ SERVER_PORT }}</td></tr>
+                <tr class="srv"><th>Whitelist</th>                  <td id='whitelist'></td></tr>
+                <tr class="srv"><th colspan="2">&nbsp;</th></tr>
+
+                <tr><th colspan="2"><h2 class="cat-config">Configuration</h2></th></tr>
+
+                <tr class="config"><th>TOR_MODE</th>                <td>{{ TOR_MODE }}</td></tr>
+                <tr class="config"><th>CHECK_FIREWALLS</th>         <td>{{ CHECK_FIREWALLS }}</td></tr>
+                <tr class="config"><th>IP_CHECK_URL</th>            <td>{{ IP_CHECK_URL }}</td></tr>
+                <tr class="config"><th>WORKERS_MIN</th>             <td>{{ WORKERS_MIN }}</td></tr>
+                <tr class="config"><th>WORKERS_MAX</th>             <td>{{ WORKERS_MAX }}</td></tr>
+                <tr class="config"><th>LOAD_THRES_MIN</th>          <td>{{ LOAD_THRES_MIN }}</td></tr>
+                <tr class="config"><th>LOAD_THRES_MAX</th>          <td>{{ LOAD_THRES_MAX }}</td></tr>
+                <tr class="config"><th>LOAD_CHECK_TIME</th>         <td>every {{ LOAD_CHECK_TIME }} seconds</td></tr>
+                <tr class="config"><th>LOG_RESPONSES</th>           <td>{{ LOG_RESPONSES }}</td></tr>
+                <tr class="config"><th>LOG_TEMPLATE_PARSER</th>     <td>{{ LOG_TEMPLATE_PARSER }}</td></tr>
+                <tr class="config"><th>EXEC_BUFFER_SIZE</th>        <td>{{ EXEC_BUFFER_SIZE }}</td></tr>
+                <tr class="config"><th>EXEC_BUFFER_TIME</th>        <td>every {{ EXEC_BUFFER_TIME }} seconds</td></tr>
+                <tr class="config"><th>STATS_UPDATE</th>            <td>every {{ STATS_UPDATE }} seconds</td></tr>
+                <tr class="config"><th>DATA_RETENTION</th>          <td>{{ DATA_RETENTION }}</td></tr>
+                <tr class="srv"><th colspan="2">&nbsp;</th></tr>
+
+                <tr><th colspan="2"><h2 class="cat-placeholders">URL Placeholders</h2></th></tr>
+                <tr class="help"><th colspan="2"><h3>Random data from datasets</h3></th></tr>
+                <tr class="help"><th>[USERAGENT]</th>               <td>user agent (from useragents.txt)</td></tr>
+                <tr class="help"><th>[DOMAIN]</th>                  <td>spammer domain (from domains.txt)</td></tr>
+                <tr class="help"><th>[USER]</th>                    <td>user name (from usernames.txt)</td></tr>
+                <tr class="help"><th>[@]</th>                       <td>fake email ([USER]@[DOMAIN])</td></tr>
+                <tr class="help"><th>[WORD]</th>                    <td>word (from wordlists.txt)</td></tr>
+                <tr class="help"><th colspan="2">&nbsp;</th></tr>
+
+                <tr class="help"><th colspan="2"><h3>Generated random data</h3></th></tr>
+                <tr class="help"><th>[URL]</th>                     <td>URL</td></tr>
+                <tr class="help"><th>[#UUID]</th>                   <td>UUID (xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx)</td></tr>
+                <tr class="help"><th>[#56]</th>                     <td>56 chars hash</td></tr>
+                <tr class="help"><th>[int:6]</th>                   <td>6 chars int (zero-padded)</td></tr>
+                <tr class="help"><th>[str:6]</th>                   <td>6 chars lowercase string (a-z)</td></tr>
+                <tr class="help"><th>[strU:6]</th>                  <td>6 chars uppercase string (A-Z)</td></tr>
+                <tr class="help"><th>[strR:6]</th>                  <td>6 chars mixed-case string (a-z, A-Z)</td></tr>
+                <tr class="help"><th>[mix:6]</th>                   <td>6 chars lowercase string (a-z, 0-9)</td></tr>
+                <tr class="help"><th>[mixU:6]</th>                  <td>6 chars uppercase string (A-Z, 0-9)</td></tr>
+                <tr class="help"><th>[mixR:6]</th>                  <td>6 chars mixed-case string (a-z, A-Z, 0-9)</td></tr>
+                <tr class="help"><th>[10-500]</th>                  <td>value between 10 and 500 (inclusive)</td></tr>
+                <tr class="help"><th>[a,b,c]</th>                   <td>value from the list</td></tr>
+                <tr class="help"><th colspan="2">&nbsp;</th></tr>
+
+                <tr class="help"><th colspan="2"><h3>Vulnerabilities</h3></th></tr>
+                <tr class="help"><th>[VULN]</th>                    <td>vulnerability</td></tr>
+                <tr class="help"><th>[PTA:10]</th>                  <td>path traversal attack with random depth<br>(given value is the maximum)</td></tr>
+                <tr class="help"><th>[PTA]</th>                     <td>path traversal attack</td></tr>
+                <tr class="help"><th>[SQLi]</th>                    <td>SQLi attack</td></tr>
+                <tr class="help"><th>[XSS]</th>                     <td>XSS attack</td></tr>
+                <tr class="help"><th colspan="2">&nbsp;</th></tr>
+            </table>
         </div>
         <div id='ifStats'>
-            <iframe id='stats' src='?statistics'></iframe>
         </div>
         <script>
+            function load_config()
+            {
+                $.getJSON("?config.json", 
+                    function(data) 
+                    {
+                        $.each(data, 
+                            function(key, val) 
+                            {
+                                $('#' + key).html(Number.isFinite(val) ? val : val.replace(/\n/g, '<br>').replace(/\s/g, '&nbsp;'));
+                            }
+                        );
+                        if (unfoldSys)
+                        {
+                            unfoldSys = false;
+                            $('.sys').toggle();
+                        }
+                        $("#pb").stop(true).animate({width:'100%'}, {{ STATS_UPDATE }} * 1000);
+                    }
+                );
+            }
+
+            function load_stats()
+            {
+                $.get("?statistics", 
+                    function(data) 
+                    {
+                        $('#ifStats').html(data);
+                    }
+                );
+            }
+
+            var unfoldSys = true;
+
             setInterval(
                 function() 
                 { 
-                    $('#stats')[0].contentWindow.location.reload(); 
-                    $('#config')[0].contentWindow.location.reload(); 
+                    $("#pb").stop(true).animate({width:'0%'}, 10);
+                    load_config();
+                    load_stats();
                 }, 
-                30000
+                {{ STATS_UPDATE }} * 1000
             );
+
+            load_config();
+            load_stats();
+
+            $('.cat-sys').click(function(){ $('.sys').toggle(); });
+            $('.cat-srv').click(function(){ $('.srv').toggle(); });
+            $('.cat-config').click(function(){ $('.config').toggle(); });
+            $('.cat-placeholders').click(function(){ $('.help').toggle(); });
         </script>        
     </body>
 </html>

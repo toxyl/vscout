@@ -45,111 +45,23 @@
 	class Main extends Routes
 	{
         /**
-         * @ACL GET CLI
+         * @ACL GET
          * 
-         * Returns the current config.
+         * Returns the current config as JSON object.
          */
-        static public function config() 
+        static public function config_json() 
         { 
-            $traffic = OS::traffic();
-            $load_avg = OS::load_average();
-            $public_ip = OS::public_ip();
-            $memory = OS::memory();
-            $disk = OS::diskspace();
-            $workers = OS::workers_count();
-            $cpu = OS::cpu();
-            $click_avg = Data::avg_clicks();
-            $click_total = Data::total_clicks();
-
-            $fmtHTML = function($v) { return str_replace("\n", '<br>', str_replace(' ', '&nbsp;', $v)); };
-            $fmtRow = function ($name, $value, $unit) { return sprintf('%5s: %7.2f %s', $name, $value, $unit)  . "\n"; };
-
-            $sClicks = $fmtHTML(
-                $fmtRow( "sec", $click_avg["avg_s"], "req/s") .
-                $fmtRow( "min", $click_avg["avg_m"], "req/m") .
-                $fmtRow( "hour", $click_avg["avg_h"], "req/h") .
-                $fmtRow( "day", $click_avg["avg_d"], "req/d")
-            );
-
-            $sClicksTotal = $fmtHTML(
-                $fmtRow( "Total", $click_total["total"], "") .
-                $fmtRow( "1xx", $click_total["total_1xx"], "") .
-                $fmtRow( "2xx", $click_total["total_2xx"], "") .
-                $fmtRow( "3xx", $click_total["total_3xx"], "") .
-                $fmtRow( "4xx", $click_total["total_4xx"], "") .
-                $fmtRow( "5xx", $click_total["total_5xx"], "")
-            );
-
-            $sCPU = $fmtHTML(sprintf('%d cores @ %d MHz', $cpu['cores'], $cpu['MHz']) . "\n");
-
-            $sLoad = $fmtHTML(
-                $fmtRow( "1m", $load_avg["1m"], "%") .
-                $fmtRow( "5m", $load_avg["5m"], "%") .
-                $fmtRow("15m", $load_avg["15m"], "%")
-            );
-
-            $sDisk = $fmtHTML( 
-                $fmtRow("Total", $disk["total"]['value'], $disk["total"]['unit']) .
-                $fmtRow( "Used", $disk["used"]['value'],  $disk["used"]['unit']) .
-                $fmtRow( "Free", $disk["free"]['value'],  $disk["free"]['unit'])
-            );
-
-            $sMem = $fmtHTML( 
-                $fmtRow("Total", $memory["total"]['value'], $memory["total"]['unit']) .
-                $fmtRow( "Used", $memory["used"]['value'],  $memory["used"]['unit']) .
-                $fmtRow( "Free", $memory["free"]['value'],  $memory["free"]['unit'])
-            );
-
-            $sTrafficAcc = $fmtHTML( 
-                $fmtRow("Total", $traffic['accumulated']["total"]['value'], $traffic['accumulated']["total"]['unit']) .
-                $fmtRow(   "RX", $traffic['accumulated']["rx"]['value'],    $traffic['accumulated']["rx"]['unit']) .
-                $fmtRow(   "TX", $traffic['accumulated']["tx"]['value'],    $traffic['accumulated']["tx"]['unit'])
-            );
-
-            $sTrafficAvg = $fmtHTML( 
-                $fmtRow("Total", $traffic['average']["total"]['value'], $traffic['average']["total"]['unit'] . "/s") .
-                $fmtRow(   "RX", $traffic['average']["rx"]['value'],    $traffic['average']["rx"]['unit'] . "/s") .
-                $fmtRow(   "TX", $traffic['average']["tx"]['value'],    $traffic['average']["tx"]['unit'] . "/s")
-            );
-
-            $sIP = $public_ip['ip'] == '' ? 'N/A' : ($public_ip['blacklisted'] ? '[BLACKLISTED] ' . $public_ip['ip'] : $public_ip['ip']) . ' (' . $public_ip['country'] . ')';
-
-            if (TOR_MODE && $public_ip['ip'] == '')
-            {
-                $sIP = 'Requesting new circuit...';
-                // looks like the current circuit is not working properly,
-                // let's request a new one
-                CommandIO::exec('ipchanger -r');
-            }
-
-            Response::html_file('config', [ 
-                "current_dir" => OS::pwd(),
-                "os" => OS::type(),
-                "user" => OS::user(),
-                "traffic" => $sTrafficAcc,
-                "avgtraffic" => $sTrafficAvg,
-                "requests" => $sClicksTotal,
-                "avgrequests" => $sClicks,
-                "cpu" => $sCPU,
-                "mem" => $sMem,
-                "disk" => $sDisk,
-                "ip" => $sIP,
-                "ips" => implode('<br>', OS::ips()),
-                "load" => $sLoad,
-                "workers" => $workers,
-                "whitelist" => implode("<br>", explode(", ", SERVER_WHITELIST))
-            ], 
-            10); 
+            Response::text(json_encode(OS::status(false), JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION)); 
         }
 
         /**
-         * @ACL GET CLI
+         * @ACL GET
          * 
          * Returns the current stats.
          */
         static public function statistics() 
         { 
-            Response::html_file('stats', [ "data" => Stats::print_formatted() ], 10); 
+            Response::text(Stats::print_formatted());
         }
 
         /**
@@ -173,6 +85,7 @@
          * %f3>[WORD]           %rst> = random word (from wordlists.txt)                                         
          *                                                                                           
          * %_2>Generated random data%rst>
+         * %f3>[URL]            %rst> = random URL
          * %f3>[#UUID]          %rst> = random UUID (xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx)                            
          * %f3>[#56]            %rst> = random 56-characters hash                                                
          * %f3>[int:6]          %rst> = random 6-characters integer (zero-padded)                                
@@ -195,7 +108,7 @@
         static public function check(string $url = 'http://' . SERVER_IP . ':' . SERVER_PORT) { URLScraper::scrape($url); } 
 
         /**
-         * @ACL GET CLI
+         * @ACL CLI
          * 
          * Shows stats of the system.
          */
@@ -206,9 +119,9 @@
          * 
          * Shows stats of the system.
          */
-        static public function results_by_status_code(int $min = 100, int $max = 599) 
+        static public function results_by_status_code(int $min = 100, int $max = 599, int $max_results = 100) 
         { 
-            $res = Data::results_by_status($min, $max);
+            $res = Data::results_by_status($min, $max, $max_results);
             foreach ($res as &$v) 
             {
                 if (is_array($v))

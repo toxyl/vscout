@@ -3,43 +3,38 @@ class Stats
 {
     static private function retrieve()
     {
-        $stats = Data::stats("active, firewalled, dead, `1d_1xx`, `1d_2xx`, `1d_3xx`, `1d_4xx`, `1d_5xx`, `1h_1xx`, `1h_2xx`, `1h_3xx`, `1h_4xx`, `1h_5xx`, `15m_1xx`, `15m_2xx`, `15m_3xx`, `15m_4xx`, `15m_5xx`, `5m_1xx`, `5m_2xx`, `5m_3xx`, `5m_4xx`, `5m_5xx`");
+        $stats = Data::stats("`1d_1xx`, `1d_2xx`, `1d_3xx`, `1d_4xx`, `1d_5xx`, `1h_1xx`, `1h_2xx`, `1h_3xx`, `1h_4xx`, `1h_5xx`, `15m_1xx`, `15m_2xx`, `15m_3xx`, `15m_4xx`, `15m_5xx`, `5m_1xx`, `5m_2xx`, `5m_3xx`, `5m_4xx`, `5m_5xx`");
         $stats = $stats[0] ?? [];
 
         return [ 
-            'domains'      => [
-                'active'     => $stats[0] ?? 0,
-                'firewalled' => $stats[1] ?? 0,
-                'dead'       => $stats[2] ?? 0,
-            ], 
             'status_codes' => [
                 '1d'         => [
-                    '1xx'        => $stats[3] ?? 0,
-                    '2xx'        => $stats[4] ?? 0,
-                    '3xx'        => $stats[5] ?? 0,
-                    '4xx'        => $stats[6] ?? 0,
-                    '5xx'        => $stats[7] ?? 0,
+                    '1xx'        => $stats[0] ?? 0,
+                    '2xx'        => $stats[1] ?? 0,
+                    '3xx'        => $stats[2] ?? 0,
+                    '4xx'        => $stats[3] ?? 0,
+                    '5xx'        => $stats[4] ?? 0,
                 ],
                 '1h'         => [
-                    '1xx'        => $stats[8] ?? 0,
-                    '2xx'        => $stats[9] ?? 0,
-                    '3xx'        => $stats[10] ?? 0,
-                    '4xx'        => $stats[11] ?? 0,
-                    '5xx'        => $stats[12] ?? 0,
+                    '1xx'        => $stats[5] ?? 0,
+                    '2xx'        => $stats[6] ?? 0,
+                    '3xx'        => $stats[7] ?? 0,
+                    '4xx'        => $stats[8] ?? 0,
+                    '5xx'        => $stats[9] ?? 0,
                 ],
                 '15m'         => [
-                    '1xx'        => $stats[13] ?? 0,
-                    '2xx'        => $stats[14] ?? 0,
-                    '3xx'        => $stats[15] ?? 0,
-                    '4xx'        => $stats[16] ?? 0,
-                    '5xx'        => $stats[17] ?? 0,
+                    '1xx'        => $stats[10] ?? 0,
+                    '2xx'        => $stats[11] ?? 0,
+                    '3xx'        => $stats[12] ?? 0,
+                    '4xx'        => $stats[13] ?? 0,
+                    '5xx'        => $stats[14] ?? 0,
                 ],
                 '5m'         => [
-                    '1xx'        => $stats[18] ?? 0,
-                    '2xx'        => $stats[19] ?? 0,
-                    '3xx'        => $stats[20] ?? 0,
-                    '4xx'        => $stats[21] ?? 0,
-                    '5xx'        => $stats[22] ?? 0,
+                    '1xx'        => $stats[15] ?? 0,
+                    '2xx'        => $stats[16] ?? 0,
+                    '3xx'        => $stats[17] ?? 0,
+                    '4xx'        => $stats[18] ?? 0,
+                    '5xx'        => $stats[19] ?? 0,
                 ],
             ], 
         ];
@@ -121,10 +116,10 @@ class Stats
         $delta = $v[3] - $v[5];
         $out[] = self::line_format([
                     ["%12s",           $lbl],  
-                    ["%10d",           $v[0]],
-                    ["%10d",           $v[1]], 
-                    ["%10d",           $v[2]], 
-                    ["%10d",           $v[3]], 
+                    ["%10s",           number_format($v[0])],
+                    ["%10s",           number_format($v[1])],
+                    ["%10s",           number_format($v[2])],
+                    ["%10s",           number_format($v[3])],
                     ["%10.2f / min",   $v[4]],
                     ["%10d / day",     $v[5]],
                     ["%3s",             $delta > 0 ? '-' : ($delta == 0 ? ' ' : '+')]
@@ -142,22 +137,6 @@ class Stats
         $s1d  = $s['status_codes']['1d'];
 
         $response[] = Router::is_cli() ? "\n" : "<table>";
-
-        $response[] = self::header_format([
-            ['%22s',    'Domains'],
-            ['%6s',     'Active'],
-            ['%6s',     'FW'],
-            ['%6s',     'Dead']
-        ]);
-
-        $response[] = self::line_format([
-            ['%22d',     array_sum(array_values($s['domains']))],
-            ['%6d',      $s['domains']['active']],
-            ['%6d',      $s['domains']['firewalled']],
-            ['%6d',      $s['domains']['dead']]
-        ]);
-
-        $response[] = Router::is_cli() ? "\n" : "</table><br><table>";
 
         self::header($response, 'Status Codes', '5m', '15m', '1h', '1d', 'average speed / min (based on 1h)', 'average speed / day (based on 1h)');
 

@@ -54,7 +54,7 @@ class OS
             $t = floatval($t);
         }
         
-        $file_traffic = '/tmp/traffic.json';
+        $file_traffic = '/tmp/traffic_' . trim(`whoami`) . '.json';
         $old_traffic = file_exists($file_traffic) ? json_decode(file_get_contents($file_traffic)) : $traffic;
         file_put_contents($file_traffic, json_encode($traffic));
 
@@ -162,5 +162,106 @@ class OS
         $wcmd = WORKER_CMD;
         $name = NAME;
         return intval(trim(`pgrep -a $name | grep '$wcmd' | wc -l`));
+    }
+
+    static public function status($as_html = true)
+    {
+        $traffic = self::traffic();
+        $load_avg = self::load_average();
+        $public_ip = self::public_ip();
+        $memory = self::memory();
+        $disk = self::diskspace();
+        $workers = self::workers_count();
+        $cpu = self::cpu();
+        $click_avg = Data::avg_clicks();
+        $click_total = Data::total_clicks();
+
+        $domains = Data::stats("active, firewalled, dead");
+        $domains = $domains[0] ?? [ 0, 0, 0 ];
+        $domains[] = $domains[0] + $domains[1] + $domains[2];
+
+        $fmtOut = $as_html ? function($v) { return str_replace("\n", '<br>', str_replace(' ', '&nbsp;', $v)); } : function($v) { return $v; };
+        $fmtRow = function ($name, $value, $unit, $is_float = true) { return sprintf('%6s: ' . ($is_float ? '%15s' : '%12s   ' ). ' %s', $name, number_format($value, $is_float ? 2 : 0), $unit)  . "\n"; };
+
+        $sClicks = $fmtOut(
+            $fmtRow( "sec", $click_avg["avg_s"], "req/s") .
+            $fmtRow( "min", $click_avg["avg_m"], "req/m") .
+            $fmtRow( "hour", $click_avg["avg_h"], "req/h") .
+            $fmtRow( "day", $click_avg["avg_d"], "req/d")
+        );
+
+        $sDomains = $fmtOut(
+            $fmtRow( "Total",       $domains[3], "", false) .
+            $fmtRow( "Active",      $domains[0], "", false) .
+            $fmtRow( "FW",          $domains[1], "", false) .
+            $fmtRow( "Dead",        $domains[2], "", false)
+        );
+
+        $sClicksTotal = $fmtOut(
+            $fmtRow( "Total",       $click_total["total"], "", false) .
+            $fmtRow( "1xx",         $click_total["total_1xx"], "", false) .
+            $fmtRow( "2xx",         $click_total["total_2xx"], "", false) .
+            $fmtRow( "3xx",         $click_total["total_3xx"], "", false) .
+            $fmtRow( "4xx",         $click_total["total_4xx"], "", false) .
+            $fmtRow( "5xx",         $click_total["total_5xx"], "", false)
+        );
+
+        $sCPU = $fmtOut(sprintf('%d cores @ %d MHz', $cpu['cores'], $cpu['MHz']) . "\n");
+
+        $sLoad = $fmtOut(
+            $fmtRow( "1m", $load_avg["1m"], "%") .
+            $fmtRow( "5m", $load_avg["5m"], "%") .
+            $fmtRow("15m", $load_avg["15m"], "%")
+        );
+
+        $sDisk = $fmtOut( 
+            $fmtRow("Total", $disk["total"]['value'], $disk["total"]['unit']) .
+            $fmtRow( "Used", $disk["used"]['value'],  $disk["used"]['unit']) .
+            $fmtRow( "Free", $disk["free"]['value'],  $disk["free"]['unit'])
+        );
+
+        $sMem = $fmtOut( 
+            $fmtRow("Total", $memory["total"]['value'], $memory["total"]['unit']) .
+            $fmtRow( "Used", $memory["used"]['value'],  $memory["used"]['unit']) .
+            $fmtRow( "Free", $memory["free"]['value'],  $memory["free"]['unit'])
+        );
+
+        $sTrafficAcc = $fmtOut( 
+            $fmtRow("Total", $traffic['accumulated']["total"]['value'], $traffic['accumulated']["total"]['unit']) .
+            $fmtRow(   "RX", $traffic['accumulated']["rx"]['value'],    $traffic['accumulated']["rx"]['unit']) .
+            $fmtRow(   "TX", $traffic['accumulated']["tx"]['value'],    $traffic['accumulated']["tx"]['unit'])
+        );
+
+        $sTrafficAvg = $fmtOut( 
+            $fmtRow("Total", $traffic['average']["total"]['value'], $traffic['average']["total"]['unit'] . "/s") .
+            $fmtRow(   "RX", $traffic['average']["rx"]['value'],    $traffic['average']["rx"]['unit'] . "/s") .
+            $fmtRow(   "TX", $traffic['average']["tx"]['value'],    $traffic['average']["tx"]['unit'] . "/s")
+        );
+
+        $sIP = $public_ip['ip'] == '' ? 'N/A' : ($public_ip['blacklisted'] ? '[BLACKLISTED] ' . $public_ip['ip'] : $public_ip['ip']) . ' (' . $public_ip['country'] . ')';
+
+        if (TOR_MODE && $public_ip['ip'] == '')
+        {
+            $sIP = 'Waiting for new circuit...';
+        }
+
+        return [ 
+            "current_dir" => self::pwd(),
+            "os" => self::type(),
+            "user" => self::user(),
+            "traffic" => $sTrafficAcc,
+            "avgtraffic" => $sTrafficAvg,
+            "requests" => $sClicksTotal,
+            "avgrequests" => $sClicks,
+            "cpu" => $sCPU,
+            "mem" => $sMem,
+            "disk" => $sDisk,
+            "ip" => $sIP,
+            "ips" => implode($as_html ? '<br>' : "\n", self::ips()),
+            "load" => $sLoad,
+            "workers" => $workers,
+            "whitelist" => str_replace(', ', $as_html ? "<br>" : "\n", SERVER_WHITELIST),
+            "domains" => $sDomains
+        ]; 
     }
 }
