@@ -99,6 +99,13 @@ class Installer
 
         if (TOR_MODE)
         {
+			Response::auto("Installing optimized proxyresolv script for proxychains...\n");
+	        file_put_contents(
+	        	'/usr/lib/proxychains3/proxyresolv', 
+		        TemplateParser::parse('proxyresolv', [], 'configs', 'sh')
+		    );
+			CommandIO::exec('chmod +x /usr/lib/proxychains3/proxyresolv');
+
 		    ProcessControl::timeout(60,
 		    	function() { return CommandIO::exec("service tor start && service ipchanger start"); }, null,
 		    	function() { return "Failed to start Tor & IPChanger!"; }, null
