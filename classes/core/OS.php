@@ -84,7 +84,7 @@ class OS
     static public function load_average()
     {
         $la = explode("\n", trim(`cat /proc/loadavg | perl -pe 's@([^\\s]+) ([^\\s]+) ([^\\s]+) .*@\\1\n\\2\n\\3\n@g'`));
-        $cores = intval(CommandIO::exec("nproc"));
+        $cores = intval(CommandIO::exec("nproc --all"));
         return [
             "1m" => round(($la[0] / $cores) * 100, 2), 
             "5m" => round(($la[1] / $cores) * 100, 2), 
@@ -152,7 +152,7 @@ class OS
     static public function cpu()
     {
         return [
-            "cores" => intval(trim(`nproc`)),
+            "cores" => intval(trim(`nproc --all`)),
             "MHz" => floatval(trim(`cat /proc/cpuinfo | grep MHz | awk '{s+=$4;c+=1} END{print s/c}'`))
         ];
     }

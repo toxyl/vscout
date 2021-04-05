@@ -48,7 +48,7 @@ class Stats
     static public function load_averages()
     {
         # get number of cores
-        $cores = intval(CommandIO::exec("nproc"));
+        $cores = intval(CommandIO::exec("nproc --all"));
         # get load averages
         $avgs = explode("-", CommandIO::exec('cat /proc/loadavg | awk \'{printf("%s-%s-%s",$1,$2,$3) }\''));
         return [
