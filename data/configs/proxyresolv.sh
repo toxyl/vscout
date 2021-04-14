@@ -17,9 +17,9 @@ if [ "$IP" = "" ] ; then
         IP=$(tor-resolve $1 | tr -d "\n")
 fi
 
-# uncomment to allow usage of dig as fallback
-# if [ "$IP" = "" ] ; then
-#     IP=$(dig $1 @$DNS_SERVER +tcp | awk '/A.+[0-9]+\.[0-9]+\.[0-9]/{print $5;}')
-# fi
+# comment to disallow usage of dig as fallback
+if [ "$IP" = "" ] ; then
+    IP=$(dig $1 @$DNS_SERVER +tcp | awk '/A.+[0-9]+\.[0-9]+\.[0-9]/{print $5;}')
+fi
 
 echo $IP
