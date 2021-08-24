@@ -148,7 +148,7 @@ https://dirty.example.com/[$DIRYWORDS1]
 ```
 This will randomly pick one of the three words (so a one in three chance that it will be a harmless word) from the list every time this placeholder is encountered. So using it twice in one URL pattern does not mean it will be the same word used.
 
-### `vuln` directoruy
+### `vuln` directory
 In this directory you find lists of vulnerabilities, currently there are three lists:
 - `PTA.txt` is a list of path traversal attacks
 - `SQLi.txt` is a list of SQL injection attacks
